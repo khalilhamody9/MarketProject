@@ -1,0 +1,160 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:padding="8dp">
+
+  <!-- New Button at the Top-Right Corner -->
+  <!-- Back Button as Arrow at the Top-Left Corner -->
+  <ImageButton
+      android:id="@+id/buttonBack2"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentStart="true"
+      android:layout_alignParentTop="true"
+      android:layout_marginStart="16dp"
+      android:layout_marginTop="16dp"
+      android:layout_marginEnd="16dp"
+      android:layout_marginBottom="16dp"
+      android:background="?android:attr/selectableItemBackground"
+      android:contentDescription="Back"
+      android:src="@drawable/ic_arrow_back" />
+
+<!--  <Button-->
+<!--      android:id="@+id/btnViewHistory2"-->
+<!--      android:layout_width="wrap_content"-->
+<!--      android:layout_height="wrap_content"-->
+<!--      android:layout_below="@id/userInfo"-->
+<!--      android:layout_alignParentEnd="true"-->
+<!--      android:layout_marginTop="-40dp"-->
+<!--      android:layout_marginEnd="66dp"-->
+<!--      android:background="@drawable/spinner_bg"-->
+<!--      android:padding="8dp"-->
+<!--      android:spinnerMode="dropdown"-->
+
+<!--      android:theme="@style/Widget.AppCompat.Spinner.Underlined" />-->
+
+  <!-- Finish ImageButton at the Top-Right Corner -->
+  <ImageButton
+      android:id="@+id/buttonFinish"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentTop="true"
+      android:layout_alignParentEnd="true"
+      android:layout_marginTop="16dp"
+      android:layout_marginEnd="24dp"
+      android:background="?attr/selectableItemBackgroundBorderless"
+      android:contentDescription="Finish"
+      android:src="@drawable/finish" />
+
+  <!-- User Info at the Top -->
+
+  <!-- Admin Options Button (Top-Right Corner) -->
+  <TextView
+      android:id="@+id/userInfo"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentStart="true"
+      android:layout_marginStart="62dp"
+      android:layout_marginBottom="8dp"
+      android:fontFamily="sans-serif-medium"
+      android:padding="8dp"
+      android:text="Name, Group Number"
+      android:textColor="@color/secondary_text"
+      android:textSize="18sp"
+      android:textStyle="bold" />
+
+  <ImageButton
+      android:id="@+id/btnAdminOptions"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:src="@drawable/ic_admin_menu"
+      android:background="?attr/selectableItemBackgroundBorderless"
+      android:layout_alignParentEnd="true"
+      android:layout_alignParentTop="true"
+      android:contentDescription="Admin Options"
+      android:visibility="gone" />
+
+  <!-- Category Buttons -->
+  <HorizontalScrollView
+      android:id="@+id/categoryScrollView"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/userInfo"
+      android:paddingBottom="8dp">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="4dp">
+
+      <!-- All Button -->
+      <Button
+          android:id="@+id/btnAll"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="All"
+          android:backgroundTint="@color/cardShadow"
+
+          android:padding="8dp"
+          android:textColor="@color/buttonTextDark"
+          android:layout_marginEnd="8dp"
+          android:drawableLeft="@drawable/ic_all"
+          android:drawablePadding="8dp"
+          />
+
+      <!-- Kitchen Button -->
+      <Button
+          android:id="@+id/btnKitchen"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="Kitchen"
+          android:backgroundTint="@color/cardShadow"
+
+          android:padding="8dp"
+          android:textColor="@color/buttonTextDark"
+          android:layout_marginEnd="8dp"
+          android:drawableLeft="@drawable/ic_kitchen"
+          android:drawablePadding="8dp" />
+
+      <!-- Bathroom Button -->
+      <Button
+          android:id="@+id/btnBathroom"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="Bathroom"
+          android:padding="8dp"
+          android:backgroundTint="@color/cardShadow"
+
+          android:textColor="@color/buttonTextDark"
+          android:layout_marginEnd="8dp"
+          android:drawableLeft="@drawable/ic_bathroom"
+          android:drawablePadding="8dp"
+  />
+
+      <!-- Groceries Button -->
+      <Button
+          android:id="@+id/btnGroceries"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="Groceries"
+          android:padding="8dp"
+          android:textColor="@color/buttonTextDark"
+          android:backgroundTint="@color/cardShadow"
+          android:layout_marginEnd="8dp"
+          android:drawableLeft="@drawable/ic_groceries"
+          android:drawablePadding="8dp"
+       />
+    </LinearLayout>
+  </HorizontalScrollView>
+
+  <!-- RecyclerView for Items -->
+  <androidx.recyclerview.widget.RecyclerView
+      android:id="@+id/recyclerView"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:padding="4dp"
+
+      android:layout_below="@id/categoryScrollView" />
+</RelativeLayout>
