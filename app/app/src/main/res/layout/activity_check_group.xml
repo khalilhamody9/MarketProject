@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- 🌄 Background Image -->
+    <ImageView
+        android:id="@+id/backgroundImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/basket2"
+        android:scaleType="centerCrop"
+        android:alpha="0.07" />
+
+    <!-- 📄 Main Content -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- 🔙 Back Button -->
+        <ImageButton
+            android:id="@+id/buttonBackCheckGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_revert"
+            android:background="@android:color/transparent"
+            android:contentDescription="Back"
+            android:layout_gravity="start"
+            android:padding="8dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- ❓ Prompt Text -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Do you have a group?"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/categoryBathroom"
+            android:layout_gravity="center"
+            android:layout_marginBottom="24dp"/>
+
+        <!-- ✅ Radio Group Card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp">
+
+            <RadioGroup
+                android:id="@+id/groupChoice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_gravity="center"
+                android:padding="16dp">
+
+                <RadioButton
+                    android:id="@+id/radioYes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Yes"
+                    android:textColor="@color/categoryBathroom"
+                    android:textSize="16sp"
+                    android:layout_marginEnd="32dp"/>
+
+                <RadioButton
+                    android:id="@+id/radioNo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No"
+                    android:textColor="@color/categoryBathroom"
+                    android:textSize="16sp"/>
+            </RadioGroup>
+        </androidx.cardview.widget.CardView>
+
+        <!-- 🆔 Group Name Field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Group Name"
+            app:boxStrokeColor="@color/primaryColor"
+            app:boxStrokeWidthFocused="2dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp"
+            android:layout_marginBottom="24dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputGroupName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- ▶️ Continue Button -->
+        <Button
+            android:id="@+id/btnContinue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Continue"
+            android:textStyle="bold"
+            android:backgroundTint="@color/categoryBathroom"
+            android:textColor="@android:color/white"
+            android:layout_marginBottom="16dp"
+            android:drawablePadding="8dp"
+            android:padding="12dp"
+            android:elevation="4dp"
+            android:layout_gravity="center"/>
+
+        <!-- 📩 Request to Join Button -->
+        <Button
+            android:id="@+id/buttonRequestJoin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Request to Join"
+            android:textStyle="bold"
+            android:backgroundTint="@color/categoryBathroom"
+            android:textColor="@android:color/white"
+            android:drawablePadding="8dp"
+            android:padding="12dp"
+            android:elevation="4dp"
+            android:layout_gravity="center"/>
+    </LinearLayout>
+</FrameLayout>

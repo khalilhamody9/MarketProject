@@ -1,0 +1,51 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+  <!-- Background Image -->
+  <ImageView
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:src="@drawable/basket_img"
+      android:scaleType="centerCrop"
+      android:alpha="0.1" />
+
+  <!-- Foreground Content -->
+  <LinearLayout
+      android:orientation="vertical"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:padding="16dp"
+      android:background="@android:color/transparent">
+
+    <!-- Back Button -->
+    <ImageButton
+        android:id="@+id/buttonBackPopular"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_menu_revert"
+        android:background="@android:color/transparent"
+        android:contentDescription="Back"
+        android:layout_marginBottom="12dp" />
+
+    <!-- Title with updated text color -->
+    <TextView
+        android:id="@+id/popularTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Top 5 Most Bought Items"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/categoryBathroom"
+        android:layout_gravity="center"
+        android:layout_marginBottom="16dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/popularRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingBottom="8dp" />
+  </LinearLayout>
+</FrameLayout>

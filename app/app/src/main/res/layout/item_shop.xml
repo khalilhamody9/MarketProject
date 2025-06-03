@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="#FFFFFF"
+    android:layout_marginBottom="8dp"
+    android:elevation="2dp">
+
+    <TextView
+        android:id="@+id/shopName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="שם חנות"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:textColor="@color/categoryBathroom"
+        android:layout_marginBottom="4dp" />
+
+    <TextView
+        android:id="@+id/shopTotalPrice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="מחיר כולל: ₪0.00"
+        android:textSize="16sp"
+        android:textColor="@color/categoryBathroom"
+        android:layout_marginBottom="8dp" />
+
+    <LinearLayout
+        android:id="@+id/productContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp" />
+
+</LinearLayout>

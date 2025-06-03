@@ -1,0 +1,65 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Background Image -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/basket_img"
+        android:scaleType="centerCrop"
+        android:alpha="0.1" />
+
+    <!-- Main Content -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <ImageButton
+            android:id="@+id/buttonBackDeleteMember"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@android:drawable/ic_menu_revert"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back"
+            android:layout_gravity="start"
+            android:layout_marginBottom="24dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Delete a Member"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/buttonRed"
+            android:gravity="center"
+            android:layout_marginBottom="24dp" />
+
+        <EditText
+            android:id="@+id/inputMemberName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter member name"
+            android:background="@drawable/edittext_background"
+            android:padding="14dp"
+            android:textColor="@color/categoryBathroom"
+            android:textSize="16sp"
+            android:layout_marginBottom="20dp" />
+
+        <Button
+            android:id="@+id/btnDeleteMember"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Delete Member"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#F44336"
+            android:padding="14dp"
+            android:elevation="2dp" />
+
+    </LinearLayout>
+</FrameLayout>

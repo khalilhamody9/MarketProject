@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Background and Card Colors -->
+    <color name="background_color">#F5F5F5</color>
+    <color name="cardBackground">#FFFFFF</color>
+    <color name="cardShadow">#DADADA</color>
+    <color name="cardText">#212121</color>
+
+    <!-- Text Colors -->
+    <color name="primary_text">#212121</color>
+    <color name="secondary_text">#757575</color>
+    <color name="white">#FFFFFF</color>
+
+    <!-- Primary and Accent Colors -->
+    <color name="primary_color">#6200EE</color>
+    <color name="primary_light">#BB86FC</color>
+    <color name="primary_dark">#3700B3</color>
+    <color name="accent_color">#03DAC5</color>
+    <color name="buttonYellow">#FFEB3B</color>
+    <color name="buttonTextDark">#212121</color> <!-- Dark text for contrast -->
+    <!-- Button Colors -->
+    <color name="button_color">#6200EE</color>
+    <color name="button_text">#FFFFFF</color>
+    <color name="link_text">#6200EE</color>
+        <!-- Primary and Accent Colors -->
+        <color name="primaryColor">#6200EE</color>
+        <color name="primaryLightColor">#BB86FC</color>
+        <color name="primaryDarkColor">#3700B3</color> <!-- Add this line -->
+        <color name="accentColor">#03DAC5</color>
+        <color name="textColor">#FFFFFF</color>
+
+        <!-- Category Button Colors -->
+        <color name="categoryKitchen">#FF7043</color>
+        <color name="categoryBathroom">#42A5F5</color>
+        <color name="categoryGroceries">#66BB6A</color>
+        <color name="categoryAll">#AB47BC</color>
+        <color name="buttonRed">#F44336</color> <!-- 🔴 Red Button -->
+
+</resources>
+

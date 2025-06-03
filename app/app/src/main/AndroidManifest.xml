@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" >
+    <!-- Internet Permission -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <application
+        android:enableOnBackInvokedCallback="true"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:theme="@style/Theme.Khalilo"
+        android:usesCleartextTraffic="true"
+        android:supportsRtl="true"
+        tools:targetApi="31" >
+        <activity
+            android:name=".ui.ComparePricesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.DeleteMemberActivity"
+            android:exported="false" />
+        <activity
+            android:name=".adapter.SuggestionAdapter"
+            android:exported="false" />
+        <activity
+            android:name=".ui.SelectedItemsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.AddMembersActivity"
+            android:exported="false" />
+        <activity
+            android:name=".adapter.SelectedItemsAdapter"
+            android:exported="false" />
+        <activity
+            android:name=".ui.GroupMembersActivity"
+            android:exported="false" /> <!-- Existing Activities -->
+        <activity
+            android:name=".ui.GroupDetailsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".models.History"
+            android:exported="false" />
+        <activity
+            android:name=".WelcomeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".GroupActivity"
+            android:exported="false" />
+        <activity
+            android:name=".CheckGroup"
+            android:exported="false" />
+        <activity
+            android:name=".ui.Store"
+            android:exported="false" />
+        <activity
+            android:name=".Signup"
+            android:exported="false" />
+        <activity
+            android:name=".ui.HistoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Login"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+        </activity> <!-- New Activity for Popular Items -->
+        <activity
+            android:name=".ui.PopularItemsActivity"
+            android:exported="false" />
+    </application>
+
+</manifest>

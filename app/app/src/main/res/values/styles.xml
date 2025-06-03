@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="ModernCategoryButton" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:layout_marginEnd">6dp</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:backgroundTint">@color/cardShadow</item>
+        <item name="android:textColor">@color/buttonTextDark</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+</resources>
