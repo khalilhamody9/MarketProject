@@ -1,39 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="12dp"
-    android:background="#FFFFFF"
-    android:layout_marginBottom="8dp"
-    android:elevation="2dp">
-
-    <TextView
-        android:id="@+id/shopName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="שם חנות"
-        android:textStyle="bold"
-        android:textSize="18sp"
-        android:textColor="@color/categoryBathroom"
-        android:layout_marginBottom="4dp" />
-
-    <TextView
-        android:id="@+id/shopTotalPrice"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="מחיר כולל: ₪0.00"
-        android:textSize="16sp"
-        android:textColor="@color/categoryBathroom"
-        android:layout_marginBottom="8dp" />
+    android:layout_margin="8dp"
+    android:background="@android:color/white"
+    android:elevation="4dp"
+    android:radius="16dp">
 
     <LinearLayout
-        android:id="@+id/productContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:visibility="gone"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp" />
+        android:padding="12dp">
 
-</LinearLayout>
+        <!-- Shop name -->
+        <TextView
+            android:id="@+id/shopName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="שם החנות"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="@android:color/black" />
+
+        <!-- Total price -->
+        <TextView
+            android:id="@+id/shopTotalPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="מחיר כולל: ₪0.00"
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
+            android:layout_marginTop="4dp" />
+
+        <!-- Product list -->
+        <LinearLayout
+            android:id="@+id/productContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="8dp"
+            android:visibility="gone" />
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

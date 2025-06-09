@@ -123,5 +123,9 @@ public interface ApiService {
     Call<Map<String, Object>> getShopProducts();
     @GET("/api/last_scrape")
     Call<Map<String, Object>> getLastScrape(@Query("groupName") String groupName);
+    @GET("items/recommendations-by-user/{username}")
+    Call<RecommendationResponse> getRecommendationsByUser(@Path("username") String username);
+    @GET("items/recommendations-smart/{username}")
+    Call<RecommendationResponse> getSmartRecommendations(@Path("username") String username);
 
 }

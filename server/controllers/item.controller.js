@@ -2,6 +2,101 @@ const Item = require('../models/Item');
 const History = require('../models/History');
 const FinalizedItem = require('../models/FinalizedItem');
 const { spawn } = require("child_process");
+const Group = require('../models/Group');
+
+// controller/recommendation.controller.js
+exports.getSmartRecommendations = async (req, res) => {
+    const { username } = req.params;
+
+    try {
+        // שלב 1: שליפת קבוצות של המשתמש
+        const userGroups = await Group.find({ members: username });
+        const groupNames = userGroups.map(g => g.groupName);
+
+        // שלב 2: שליפת רכישות
+        const allHistory = await History.find({});
+        const now = new Date();
+
+        // שלב 3: בניית שכבות מידע
+        const scoreMap = new Map(); // itemName -> score info
+
+        for (const entry of allHistory) {
+            const name = entry.itemName;
+            const key = name;
+
+            if (!scoreMap.has(key)) {
+                scoreMap.set(key, {
+                    itemName: name,
+                    lastPurchased: entry.date,
+                    userCount: 0,
+                    groupCount: 0,
+                    globalCount: 0,
+                    totalDaysBetween: 0,
+                    intervalCount: 0
+                });
+            }
+
+            const data = scoreMap.get(key);
+
+            // עדכון אחרון קנייה
+            if (entry.date > data.lastPurchased) {
+                data.lastPurchased = entry.date;
+            }
+
+            // ניקוד לפי רמה
+            if (entry.username === username) {
+                data.userCount++;
+            } else if (groupNames.includes(entry.groupName)) {
+                data.groupCount++;
+            } else {
+                data.globalCount++;
+            }
+        }
+
+        // שלב 4: ניקוד כולל
+        const scored = [];
+        for (const [_, item] of scoreMap) {
+            const score =
+                item.userCount * 0.5 +
+                item.groupCount * 0.3 +
+                item.globalCount * 0.2;
+
+            // בונוס אם עבר זמן רב
+            const daysSince = (now - item.lastPurchased) / (1000 * 60 * 60 * 24);
+            if (daysSince > 14) {
+                score += 1.5;
+            }
+
+            scored.push({
+                itemName: item.itemName,
+                score: score.toFixed(2),
+                lastPurchased: item.lastPurchased,
+                reason: `נרכש ${item.userCount} פעמים אישית, ${item.groupCount} קבוצתי, ${item.globalCount} כללית`,
+                daysSince: Math.floor(daysSince)
+            });
+        }
+
+        // שלב 5: סינון מוצרים שנרכשו ממש עכשיו או קיימים ברשימת הקבוצה
+        const selectedMap = userGroups.reduce((map, group) => {
+            for (const [item, qty] of group.selectedItems.entries()) {
+                map[item] = true;
+            }
+            return map;
+        }, {});
+
+        const filtered = scored.filter(i => {
+            return !selectedMap[i.itemName] && i.daysSince > 3;
+        });
+
+        // שלב 6: החזרת ההמלצות
+        filtered.sort((a, b) => b.score - a.score);
+
+        res.json({ recommendations: filtered.slice(0, 10) });
+    } catch (err) {
+        console.error("❌ Recommendation error:", err);
+        res.status(500).json({ message: "Recommendation failed", error: err.message });
+    }
+};
 
 exports.getRecommendations = async (req, res) => {
     const { groupName } = req.params;

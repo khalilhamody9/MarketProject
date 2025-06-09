@@ -1,51 +1,57 @@
-import sys
-import json
+import sys, json
 from collections import defaultdict
+from datetime import datetime
+from datetime import timezone
 
-def get_top_5_popular_items(data):
-    item_stats = defaultdict(lambda: {"quantity": 0, "category": "", "lastDate": "", "imageUrl": ""})
-
+def parse_items(data):
+    parsed = []
     for item in data:
-        name = item.get("itemName")
-        qty = item.get("quantity", 0)
-        category = item.get("category", "")
-        image = item.get("imageUrl", "")
-        timestamp = item.get("timestamp", "")
+        try:
+            item['timestamp'] = datetime.fromisoformat(item['timestamp'].replace('Z', '+00:00'))
+            parsed.append(item)
+        except:
+            continue
+    return parsed
 
-        if name:
-            item_stats[name]["quantity"] += qty
-            item_stats[name]["category"] = category
-            item_stats[name]["imageUrl"] = image
-            item_stats[name]["lastDate"] = timestamp  # Optional: could track latest only if needed
+def recommend(group_name, items):
+    now = datetime.now(timezone.utc)
+    group_items = [i for i in items if i['groupName'] == group_name]
+    other_items = [i for i in items if i['groupName'] != group_name]
 
-    # Sort by quantity descending
-    sorted_items = sorted(item_stats.items(), key=lambda x: x[1]["quantity"], reverse=True)
-    top_5 = sorted_items[:5]
+    last_purchased = {}
+    for item in group_items:
+        name = item['itemName']
+        if name not in last_purchased or item['timestamp'] > last_purchased[name]:
+            last_purchased[name] = item['timestamp']
 
-    # Format output
-    return [
-        {
-            "itemName": name,
-            "quantity": info["quantity"],
-            "category": info["category"],
-            "imageUrl": info["imageUrl"],
-            "lastDate": info["lastDate"]
-        }
-        for name, info in top_5
-    ]
+    global_counts = defaultdict(int)
+    for item in other_items:
+        global_counts[item['itemName']] += 1
+
+    suggestions = []
+    for name, count in global_counts.items():
+        last_date = last_purchased.get(name)
+        days_since = (now - last_date).days if last_date else None
+        if days_since is None or days_since > 14:  # לא נקנה זמן רב או מעולם
+            suggestions.append({
+                "itemName": name,
+                "reason": "מוצר פופולרי שלא נרכש לאחרונה",
+                "lastPurchased": last_date.isoformat() if last_date else "מעולם לא",
+                "globalUsage": count
+            })
+
+    return sorted(suggestions, key=lambda x: -x['globalUsage'])[:10]
 
 def main():
     try:
-        _ = sys.argv[1]  # we ignore groupName for global popularity
-        raw_input = sys.stdin.read()
-        data = json.loads(raw_input)
-
-        results = get_top_5_popular_items(data)
-        print(json.dumps(results))
-
+        group_name = sys.argv[1]
+        data = json.loads(sys.stdin.read())
+        items = parse_items(data)
+        recommendations = recommend(group_name, items)
+        print(json.dumps(recommendations, ensure_ascii=False))
     except Exception as e:
         import traceback
-        print("❌ Python crashed:\n", traceback.format_exc(), file=sys.stderr)
+        print("Python crashed:\n", traceback.format_exc(), file=sys.stderr)
         sys.exit(1)
 
 if __name__ == "__main__":

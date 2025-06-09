@@ -242,7 +242,7 @@ public class Store extends AppCompatActivity {
 
     private void fetchRecommendations() {
         ApiService apiService = RetrofitClient.getRetrofitInstance().create(ApiService.class);
-        Call<RecommendationResponse> call = apiService.getRecommendations(groupName);
+        Call<RecommendationResponse> call = apiService.getSmartRecommendations(username); // 👈 שינוי כאן
 
         call.enqueue(new Callback<RecommendationResponse>() {
             @Override
@@ -279,6 +279,7 @@ public class Store extends AppCompatActivity {
             }
         });
     }
+
 
     private void loadSavedItems() {
         ApiService apiService = RetrofitClient.getRetrofitInstance().create(ApiService.class);
