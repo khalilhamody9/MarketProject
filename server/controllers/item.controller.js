@@ -3,7 +3,27 @@ const History = require('../models/History');
 const FinalizedItem = require('../models/FinalizedItem');
 const { spawn } = require("child_process");
 const Group = require('../models/Group');
+const fs = require('fs');
+const path = require('path');
 
+exports.getItemsFromFile = (req, res) => {
+    const filePath = path.join(__dirname, '../data/Data.json'); // ודא שהתיקייה נכונה
+
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+            console.error("❌ Error reading Data.json:", err);
+            return res.status(500).json({ message: 'Failed to read items file' });
+        }
+
+        try {
+            const items = JSON.parse(data);
+            res.status(200).json(items);
+        } catch (parseErr) {
+            console.error("❌ JSON parse error:", parseErr);
+            res.status(500).json({ message: 'Invalid JSON format' });
+        }
+    });
+};
 // controller/recommendation.controller.js
 exports.getSmartRecommendations = async (req, res) => {
     const { username } = req.params;
@@ -173,10 +193,22 @@ exports.getHistory = async (req, res) => {
     }
 };
 
-// Add History Entry
 exports.addHistory = async (req, res) => {
     try {
-        const { itemName, action, price, category, imageUrl, groupName, username } = req.body;
+        const {
+            itemName,
+            action,
+            price,
+            category,
+            imageUrl,
+            groupName,
+            username,
+            quantity
+        } = req.body;
+
+        const parsedQuantity = parseInt(quantity);
+        console.log("📦 quantity (parsed):", parsedQuantity, typeof parsedQuantity);
+
         const newHistory = new History({
             itemName,
             action,
@@ -185,15 +217,18 @@ exports.addHistory = async (req, res) => {
             imageUrl,
             groupName,
             username,
-            timestamp: new Date()
+            quantity: isNaN(parsedQuantity) ? 1 : parsedQuantity,
+            date: new Date()
         });
 
         await newHistory.save();
         res.status(201).json({ message: 'History entry added successfully' });
     } catch (error) {
+        console.error("❌ Error in addHistory:", error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+
 
 // Get History by Group
 exports.getHistoryByGroup = async (req, res) => {

@@ -1,6 +1,9 @@
 package com.example.khalilo.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,12 +15,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.khalilo.R;
 import com.example.khalilo.entities.Item;
 import com.example.khalilo.models.History;
 
 import java.util.List;
-
 public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.SuggestionViewHolder> {
 
     private List<History> suggestionList;
@@ -44,8 +47,24 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Su
         History history = suggestionList.get(position);
         holder.itemName.setText(history.getItemName());
         holder.itemInfo.setText("Last bought: " + history.getDate() );
-        int imageResId = getImageByName(history.getItemName().toLowerCase().replace(" ", "_"));
-        holder.itemImage.setImageResource(imageResId);
+        if (history.getImageUrl() != null && history.getImageUrl().startsWith("data:image")) {
+            try {
+                String base64Image = history.getImageUrl().split(",")[1];
+                byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
+                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                holder.itemImage.setImageBitmap(decodedByte);
+            } catch (Exception e) {
+                holder.itemImage.setImageResource(R.drawable.apple);
+            }
+        } else if (history.getImageUrl() != null) {
+            Glide.with(context)
+                    .load(history.getImageUrl())
+                    .placeholder(R.drawable.apple)
+                    .into(holder.itemImage);
+        } else {
+            holder.itemImage.setImageResource(R.drawable.apple);
+        }
+
         holder.btnApprove.setOnClickListener(v -> {
             for (Item i : itemList) {
                 if (i.getName().equalsIgnoreCase(history.getItemName())) {
@@ -62,7 +81,6 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Su
             holder.itemView.setVisibility(View.GONE);
         });
 
-        holder.itemImage.setImageResource(imageResId);
 
     }
 

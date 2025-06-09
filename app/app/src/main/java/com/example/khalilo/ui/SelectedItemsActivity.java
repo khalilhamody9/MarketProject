@@ -144,7 +144,7 @@ public class SelectedItemsActivity extends AppCompatActivity {
                     historyEntry.put("category", item.getCategory());
                     historyEntry.put("username", username);
                     historyEntry.put("groupName", groupName);
-                    historyEntry.put("imageUrl", String.valueOf(item.getPic()));
+                    historyEntry.put("imageUrl", item.getImg());
                     historyEntry.put("action", "bought");
 
                     apiService.addHistory(historyEntry).enqueue(new Callback<Void>() {
@@ -169,7 +169,7 @@ public class SelectedItemsActivity extends AppCompatActivity {
         for (Map.Entry<Item, Integer> entry : selectedItems.entrySet()) {
             Item item = entry.getKey();
             itemsMap.put(item.getName(), entry.getValue());
-            imageUrls.put(item.getName(), String.valueOf(item.getPic()));
+            imageUrls.put(item.getName(), item.getImg());
             categories.put(item.getName(), item.getCategory());
         }
 

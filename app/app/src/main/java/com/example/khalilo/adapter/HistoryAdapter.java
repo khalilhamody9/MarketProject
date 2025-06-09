@@ -40,25 +40,33 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
     public void onBindViewHolder(@NonNull HistoryViewHolder holder, int position) {
         History history = historyList.get(position);
         holder.itemName.setText(history.getItemName());
-      //  holder.itemPrice.setText("Price: $" + history.getPrice());
         holder.itemCategory.setText("Category: " + history.getCategory());
         holder.action.setText("Action: " + history.getAction());
         holder.timestamp.setText("Date: " + history.getDate());
         holder.username.setText("By: " + history.getUsername());
 
-        try {
-            int imageResId = Integer.parseInt(history.getImageUrl());
-            Glide.with(context)
-                    .load(imageResId)
-                    .into(holder.itemImage);
-        } catch (NumberFormatException e) {
-            // If it's not an integer, treat it as a URL or file path
-            Glide.with(context)
-                    .load(history.getImageUrl())
-                    .into(holder.itemImage);
+        String imgUrl = history.getImageUrl();
+        if (imgUrl != null) {
+            if (imgUrl.startsWith("data:image")) {
+                Glide.with(context)
+                        .load(android.net.Uri.parse(imgUrl))
+                        .placeholder(R.drawable.apple)
+                        .error(R.drawable.apple)
+                        .into(holder.itemImage);
+            } else if (imgUrl.startsWith("http")) {
+                Glide.with(context)
+                        .load(imgUrl)
+                        .placeholder(R.drawable.apple)
+                        .error(R.drawable.apple)
+                        .into(holder.itemImage);
+            } else {
+                holder.itemImage.setImageResource(R.drawable.apple);
+            }
+        } else {
+            holder.itemImage.setImageResource(R.drawable.apple);
         }
-
     }
+
 
     @Override
     public int getItemCount() {

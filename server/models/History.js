@@ -1,4 +1,3 @@
-// models/History.js
 const mongoose = require('mongoose');
 
 const HistorySchema = new mongoose.Schema({
@@ -8,7 +7,8 @@ const HistorySchema = new mongoose.Schema({
     category: { type: String, required: true },
     groupName: { type: String, required: true },
     username: { type: String, required: true },
-    date: { type: Date, default: Date.now } // New Field
+    quantity: { type: Number, required: false, default: 1 }, // ✅ שורה שהוספת עכשיו
+    date: { type: Date, default: Date.now }
 });
 
 module.exports = mongoose.model('History', HistorySchema);

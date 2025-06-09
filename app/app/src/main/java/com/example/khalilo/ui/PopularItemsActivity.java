@@ -61,9 +61,8 @@ public class PopularItemsActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     HashMap<Item, Integer> popularMap = new HashMap<>();
                     for (History history : response.body()) {
-                        int imageResId = getImageByName(history.getItemName().toLowerCase().replace(" ", "_"));
-
-                        Item item = new Item(history.getItemName(), imageResId, history.getCategory(), "");
+                        String imageUrl = history.getImageUrl();  // שדה חדש שמגיע מהשרת
+                        Item item = new Item(history.getItemName(), imageUrl, history.getCategory(), "");
                         popularMap.put(item, history.getQuantity());
                     }
 

@@ -12,7 +12,7 @@ public class Item implements Serializable {
     private int id;
 
     private String name;
-    private int pic;
+    private String img;
     private String category;
     private boolean isBought;
     private String actionUser;
@@ -20,9 +20,9 @@ public class Item implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public Item(String name, int pic, String category, String barcode) {
+    public Item(String name, String img, String category, String barcode) {
         this.name = name;
-        this.pic = pic;
+        this.img = img;
         this.category = category;
         this.barcode = barcode;
         this.isBought = false;
@@ -32,8 +32,8 @@ public class Item implements Serializable {
 
     public String getName() { return name; }
 
-    public int getPic() { return pic; }
-
+    public String getImg() { return img; }
+    public void setImg(String img) { this.img = img; }
     public String getCategory() { return category; }
 
     public boolean isBought() { return isBought; }
@@ -44,7 +44,6 @@ public class Item implements Serializable {
 
     public void setCategory(String category) { this.category = category; }
 
-    public void setPic(int pic) { this.pic = pic; }
 
     public void setId(int id) { this.id = id; }
 
@@ -55,4 +54,19 @@ public class Item implements Serializable {
     public String getBarcode() { return barcode; }
 
     public void setBarcode(String barcode) { this.barcode = barcode; }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Item item = (Item) o;
+
+        // השוואה לפי שם בלבד
+        return name != null ? name.equals(item.name) : item.name == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return name != null ? name.hashCode() : 0;
+    }
 }

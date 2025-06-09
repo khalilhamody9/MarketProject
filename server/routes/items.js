@@ -1,7 +1,26 @@
 const express = require('express');
 const router = express.Router();
 const Item = require('../models/Item');
+const fs = require('fs');
+const path = require('path');
+router.get('/from-file', (req, res) => {
+    const filePath = path.join(__dirname, '../Data/items.json'); // ודא שהקובץ אכן שם
 
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+            console.error('❌ שגיאה בקריאת הקובץ:', err);
+            return res.status(500).json({ message: 'שגיאה בקריאת הקובץ' });
+        }
+
+        try {
+            const items = JSON.parse(data);
+            res.json(items);
+        } catch (parseError) {
+            console.error('❌ שגיאה בפריסת JSON:', parseError);
+            res.status(500).json({ message: 'שגיאה בפריסת הקובץ' });
+        }
+    });
+});
 // Get All Items
 router.get('/', async (req, res) => {
     try {

@@ -21,5 +21,6 @@ router.get('/history/:groupName', itemController.getHistoryByGroup);
 router.get('/finalized-popular/:groupName', itemController.getPopularFinalizedItems);
 router.get('/recommendations/:groupName', itemController.getRecommendations);
 router.get("/recommendations-smart/:username", recommendationController.getSmartRecommendations);
+router.get('/from-file', itemController.getItemsFromFile);
 
 module.exports = router;

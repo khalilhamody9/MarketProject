@@ -127,5 +127,7 @@ public interface ApiService {
     Call<RecommendationResponse> getRecommendationsByUser(@Path("username") String username);
     @GET("items/recommendations-smart/{username}")
     Call<RecommendationResponse> getSmartRecommendations(@Path("username") String username);
+    @GET("items/from-file")
+    Call<List<Item>> getItemsFromFile();
 
 }
