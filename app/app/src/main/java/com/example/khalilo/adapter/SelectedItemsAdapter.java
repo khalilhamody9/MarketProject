@@ -16,10 +16,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.khalilo.R;
 import com.example.khalilo.entities.Item;
+import com.example.khalilo.network.ApiService;
+import com.example.khalilo.network.RetrofitClient;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class SelectedItemsAdapter extends RecyclerView.Adapter<SelectedItemsAdapter.SelectedItemViewHolder> {
 
@@ -49,7 +55,6 @@ public class SelectedItemsAdapter extends RecyclerView.Adapter<SelectedItemsAdap
         holder.itemName.setText(item.getName());
         holder.itemQuantity.setText("Quantity: " + selectedItems.get(item));
 
-        // טען תמונה עם Glide לפי URL או Base64
         if (item.getImg() != null && item.getImg().startsWith("data:image")) {
             try {
                 String base64Image = item.getImg().split(",")[1];
@@ -57,16 +62,37 @@ public class SelectedItemsAdapter extends RecyclerView.Adapter<SelectedItemsAdap
                 Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
                 holder.itemImage.setImageBitmap(decodedByte);
             } catch (Exception e) {
-                holder.itemImage.setImageResource(R.drawable.apple);
+                holder.itemImage.setImageResource(R.drawable.no_img);
             }
-        } else if (item.getImg() != null) {
+        } else if (item.getImg() != null && !item.getImg().isEmpty()) {
             Glide.with(context)
                     .load(item.getImg())
-                    .placeholder(R.drawable.apple)
+                    .placeholder(R.drawable.no_img)
                     .into(holder.itemImage);
         } else {
-            holder.itemImage.setImageResource(R.drawable.apple);
+            // ✅ הצג מיד no_img כברירת מחדל
+            holder.itemImage.setImageResource(R.drawable.no_img);
+
+            // ⏳ במקביל נסה למשוך תמונה מהשרת
+            ApiService apiService = RetrofitClient.getRetrofitInstance().create(ApiService.class);
+            apiService.searchItems(item.getName()).enqueue(new Callback<List<Item>>() {
+                @Override
+                public void onResponse(Call<List<Item>> call, Response<List<Item>> response) {
+                    if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
+                        Item fetchedItem = response.body().get(0);
+                        item.setImg(fetchedItem.getImg());
+                        notifyItemChanged(holder.getAdapterPosition());
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<List<Item>> call, Throwable t) {
+                    // כבר מוצגת תמונת no_img, אין צורך בשום פעולה
+                }
+            });
         }
+
+
 
     }
 

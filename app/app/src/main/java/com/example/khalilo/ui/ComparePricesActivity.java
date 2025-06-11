@@ -129,26 +129,19 @@ public class ComparePricesActivity extends AppCompatActivity {
                                 }
                             }
 
-                            final String cityFromGeo = detectedCity;
+                            String message = "בחר עיר מהרשימה לצורך השוואת מחירים.";
 
                             new AlertDialog.Builder(this)
-                                    .setTitle("בחר עיר")
-                                    .setMessage(cityFromGeo != null ?
-                                            "זוהה עיר: " + cityFromGeo + "\nהאם להשתמש בה?" :
-                                            "לא הצלחנו לזהות עיר אוטומטית. בחר עיר מהרשימה:")
-                                    .setPositiveButton(cityFromGeo != null ? "כן, השתמש" : null, (dialog, which) -> {
-                                        if (cityFromGeo != null) {
-                                            sendScrapeRequestWithRetrofit(cityFromGeo, productList);
-                                        }
-                                    })
-                                    .setNegativeButton("בחר עיר אחרת", (dialog, which) -> {
+                                    .setTitle("השוואת מחירים לפי עיר")
+                                    .setMessage(message)
+                                    .setPositiveButton("בחר עיר", (dialog, which) -> {
                                         showCitySelectionDialog(productList);
                                     })
                                     .setCancelable(false)
                                     .show();
 
                         } catch (IOException e) {
-                            Log.e("SCRAPE_CITY", "\u274C שגיאה ב‏-Geocoder: " + e.getMessage());
+                            Log.e("SCRAPE_CITY", "❌ שגיאה ב-Geocoder: " + e.getMessage());
                             showCitySelectionDialog(productList);
                         }
                     } else {
@@ -156,6 +149,7 @@ public class ComparePricesActivity extends AppCompatActivity {
                     }
                 });
     }
+
 
     private void showCitySelectionDialog(List<Map<String, String>> productList) {
         String[] cities = { "תל אביב", "ירושלים", "חיפה", "באר שבע", "אשדוד", "אשקלון", "ראשון לציון",

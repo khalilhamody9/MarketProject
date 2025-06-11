@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -36,7 +35,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class Store extends AppCompatActivity {
+// Implement the delete listener interface
+public class Store extends AppCompatActivity implements ItemAdapter.OnItemDeleteListener {
 
     RecyclerView recyclerView;
     ItemAdapter adapter;
@@ -45,9 +45,18 @@ public class Store extends AppCompatActivity {
     Spinner groupSelector;
     boolean hasUnsavedChanges = false;
 
-    List<Item> itemList;
+    // This is the master list of all items from the server
+    List<Item> masterItemList = new ArrayList<>();
     List<String> groupList = new ArrayList<>();
     String username, groupName;
+    EditText searchBar;
+
+    private int offset = 0;
+    private final int limit = 50;
+    private boolean isLoading = false;
+    private boolean isLastPage = false;
+
+    private ApiService apiService;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -60,53 +69,31 @@ public class Store extends AppCompatActivity {
         BackButton = findViewById(R.id.buttonBack2);
         userInfo = findViewById(R.id.userInfo);
         buttonFinish = findViewById(R.id.buttonFinish);
-        EditText searchBar = findViewById(R.id.searchBar);
+        searchBar = findViewById(R.id.searchBar);
 
         username = getIntent().getStringExtra("username");
         groupName = getIntent().getStringExtra("groupName");
 
-        if (username == null || groupName == null) {
-            Log.e("Store", "username or groupName is null");
-        }
+        apiService = RetrofitClient.getRetrofitInstance().create(ApiService.class);
 
-        ApiService apiService = RetrofitClient.getRetrofitInstance().create(ApiService.class);
-        Call<List<Item>> call = apiService.getItemsFromFile();
+        // Initialize the adapter with the master list
+        adapter = new ItemAdapter(Store.this, masterItemList, groupName, username);
+        recyclerView.setAdapter(adapter);
 
-        call.enqueue(new Callback<List<Item>>() {
+        // Set the listeners
+        adapter.setOnItemChangeListener(() -> hasUnsavedChanges = true);
+        adapter.setOnItemDeleteListener(this); // Set the delete listener to this activity
+
+        loadItemsPaginated(offset, limit);
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onResponse(Call<List<Item>> call, Response<List<Item>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    itemList = response.body();
-                    // תקן מוצרים בלי קטגוריה
-                    for (Item item : itemList) {
-                        if (item.getCategory() == null || item.getCategory().trim().isEmpty()) {
-                            item.setCategory("Unknown"); // או כל קטגוריה שתבחר
-                            Log.w("MISSING_CATEGORY", "✅ Set default category for item: " + item.getName());
-                        }
-                    }
-                    Log.d("Store", "Items loaded: " + itemList.size());
-
-                    adapter = new ItemAdapter(Store.this, itemList, groupName, username);
-                    recyclerView.setAdapter(adapter);
-
-                    if (getIntent().hasExtra("selectedItems")) {
-                        HashMap<Item, Integer> restoredItems =
-                                (HashMap<Item, Integer>) getIntent().getSerializableExtra("selectedItems");
-                        if (restoredItems != null) {
-                            adapter.restoreSelectedItems(restoredItems);
-                        }
-                    }
-
-                    adapter.setOnItemChangeListener(() -> hasUnsavedChanges = true);
-                    setupCategoryButtons(); // ✅ חיבור קטגוריות
-                } else {
-                    Toast.makeText(Store.this, "שגיאה בטעינת נתונים מהשרת", Toast.LENGTH_SHORT).show();
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                if (layoutManager != null && layoutManager.findLastVisibleItemPosition() >= masterItemList.size() - 10 && !isLoading && !isLastPage) {
+                    loadItemsPaginated(offset, limit);
                 }
-            }
-
-            @Override
-            public void onFailure(Call<List<Item>> call, Throwable t) {
-                Toast.makeText(Store.this, "שגיאה בחיבור לשרת", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -157,21 +144,122 @@ public class Store extends AppCompatActivity {
             @Override public void afterTextChanged(Editable s) {}
         });
 
+//        setupCategoryButtons();
         fetchRecommendations();
+    }
+
+    // This is the implementation of the delete listener method
+    @Override
+    public void onItemDelete(Item item) {
+        // Remove the item from the master list to ensure it doesn't reappear
+        masterItemList.remove(item);
+
+        // After removing from the master list, re-apply the current filter
+        // to update the UI correctly.
+        String currentQuery = searchBar.getText().toString();
+        filterItems(currentQuery); // This will call adapter.updateList with the correct filtered list
+
+        Toast.makeText(this, item.getName() + " removed", Toast.LENGTH_SHORT).show();
+        hasUnsavedChanges = true; // Mark that changes have been made
+    }
+
+    private void loadItemsPaginated(int offset, int limit) {
+        if (isLoading || isLastPage) return;
+        isLoading = true;
+
+        apiService.getPaginatedItems(offset, limit).enqueue(new Callback<List<Item>>() {
+            @Override
+            public void onResponse(Call<List<Item>> call, Response<List<Item>> response) {
+                isLoading = false;
+                if (response.isSuccessful() && response.body() != null) {
+                    List<Item> newItems = response.body();
+
+                    for (Item item : newItems) {
+                        if (item.getCategory() == null || item.getCategory().trim().isEmpty()) {
+                            item.setCategory("Unknown");
+                        }
+                    }
+
+                    masterItemList.addAll(newItems);
+                    // Update the adapter with the full, unfiltered list
+                    adapter.updateList(masterItemList);
+
+                    if (newItems.size() < limit) {
+                        isLastPage = true;
+                    } else {
+                        Store.this.offset += limit;
+                    }
+                } else {
+                    Toast.makeText(Store.this, "שגיאה בטעינת מוצרים", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Item>> call, Throwable t) {
+                isLoading = false;
+                Toast.makeText(Store.this, "שגיאה בחיבור לשרת", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void filterItems(String query) {
         List<Item> filteredList = new ArrayList<>();
-        for (Item item : itemList) {
+        for (Item item : masterItemList) {
             if (item.getName().toLowerCase().contains(query.toLowerCase())) {
                 filteredList.add(item);
             }
         }
+
+        if (filteredList.isEmpty() && !query.trim().isEmpty()) {
+            // קריאה לשרת רק אם אין תוצאות מקומיות
+            searchItemFromServer(query);
+        } else {
+            adapter.updateList(filteredList);
+        }
+    }
+
+    private void searchItemFromServer(String query) {
+        apiService.searchItems(query).enqueue(new Callback<List<Item>>() {
+            @Override
+            public void onResponse(Call<List<Item>> call, Response<List<Item>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<Item> serverResults = response.body();
+                    // אופציונלי: הוסף לתוך masterItemList כדי שלא תבצע שוב את אותה בקשה
+                    for (Item item : serverResults) {
+                        if (!masterItemList.contains(item)) {
+                            masterItemList.add(item);
+                        }
+                    }
+                    adapter.updateList(serverResults);
+                } else {
+                    Toast.makeText(Store.this, "לא נמצאו תוצאות מהשרת", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Item>> call, Throwable t) {
+                Toast.makeText(Store.this, "שגיאה בטעינת תוצאות מהשרת", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    private void filterByCategory(String category) {
+        List<Item> filteredList = new ArrayList<>();
+        // Always filter from the master list
+        for (Item item : masterItemList) {
+            if (item.getCategory() != null && item.getCategory().equalsIgnoreCase(category)) {
+                filteredList.add(item);
+            }
+        }
         adapter.updateList(filteredList);
+        searchBar.setText(""); // Clear search when a category is selected
     }
 
     private void setupCategoryButtons() {
-        findViewById(R.id.btnAll).setOnClickListener(v -> adapter.updateList(itemList));
+        // When "All" is clicked, clear filters and show the master list
+        findViewById(R.id.btnAll).setOnClickListener(v -> {
+            adapter.updateList(masterItemList);
+            searchBar.setText("");
+        });
         findViewById(R.id.btnKitchen).setOnClickListener(v -> filterByCategory("Kitchen"));
         findViewById(R.id.btnBathroom).setOnClickListener(v -> filterByCategory("Bathroom"));
         findViewById(R.id.btnGroceries).setOnClickListener(v -> filterByCategory("Groceries"));
@@ -185,20 +273,8 @@ public class Store extends AppCompatActivity {
         findViewById(R.id.btnVegetables).setOnClickListener(v -> filterByCategory("Vegetables"));
     }
 
-    private void filterByCategory(String category) {
-        List<Item> filteredList = new ArrayList<>();
-        for (Item item : itemList) {
-            if (item.getCategory().equalsIgnoreCase(category)) {
-                filteredList.add(item);
-            }
-        }
-        adapter.updateList(filteredList);
-    }
-
     private void fetchRecommendations() {
-        ApiService apiService = RetrofitClient.getRetrofitInstance().create(ApiService.class);
         Call<RecommendationResponse> call = apiService.getSmartRecommendations(username);
-
         call.enqueue(new Callback<RecommendationResponse>() {
             @Override
             public void onResponse(Call<RecommendationResponse> call, Response<RecommendationResponse> response) {
@@ -220,7 +296,7 @@ public class Store extends AppCompatActivity {
     private void showSuggestionsDialog(List<History> suggestions) {
         View dialogView = LayoutInflater.from(Store.this).inflate(R.layout.dialog_suggestions, null);
         RecyclerView recyclerView = dialogView.findViewById(R.id.suggestionsRecyclerView);
-        SuggestionAdapter suggestionAdapter = new SuggestionAdapter(suggestions, Store.this, adapter, itemList);
+        SuggestionAdapter suggestionAdapter = new SuggestionAdapter(suggestions, Store.this, adapter, masterItemList);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(Store.this));
         recyclerView.setAdapter(suggestionAdapter);

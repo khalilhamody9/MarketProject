@@ -46,24 +46,25 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
         holder.username.setText("By: " + history.getUsername());
 
         String imgUrl = history.getImageUrl();
-        if (imgUrl != null) {
+
+        if (imgUrl != null && !imgUrl.isEmpty()) {
             if (imgUrl.startsWith("data:image")) {
                 Glide.with(context)
                         .load(android.net.Uri.parse(imgUrl))
-                        .placeholder(R.drawable.apple)
-                        .error(R.drawable.apple)
+                        .placeholder(R.drawable.no_img)
+                        .error(R.drawable.no_img)
                         .into(holder.itemImage);
             } else if (imgUrl.startsWith("http")) {
                 Glide.with(context)
                         .load(imgUrl)
-                        .placeholder(R.drawable.apple)
-                        .error(R.drawable.apple)
+                        .placeholder(R.drawable.no_img)
+                        .error(R.drawable.no_img)
                         .into(holder.itemImage);
             } else {
-                holder.itemImage.setImageResource(R.drawable.apple);
+                holder.itemImage.setImageResource(R.drawable.no_img);
             }
         } else {
-            holder.itemImage.setImageResource(R.drawable.apple);
+            holder.itemImage.setImageResource(R.drawable.no_img);
         }
     }
 

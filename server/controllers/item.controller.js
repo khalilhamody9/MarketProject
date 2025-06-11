@@ -5,9 +5,48 @@ const { spawn } = require("child_process");
 const Group = require('../models/Group');
 const fs = require('fs');
 const path = require('path');
+async function searchItems(req, res) {
+    const query = req.query.query?.toLowerCase() || '';
+    const filePath = path.resolve(__dirname, "../data/data.json");
 
-exports.getItemsFromFile = (req, res) => {
-    const filePath = path.join(__dirname, '../data/Data.json'); // ודא שהתיקייה נכונה
+    fs.readFile(filePath, "utf8", (err, data) => {
+        if (err) {
+            console.error("שגיאה בקריאת קובץ:", err);
+            return res.status(500).json({ error: "שגיאה בקריאת הקובץ" });
+        }
+
+        try {
+            const allItems = JSON.parse(data);
+            const filtered = allItems.filter(item =>
+                item.name?.toLowerCase().includes(query)
+            );
+            res.json(filtered);
+        } catch (e) {
+            console.error("שגיאה בניתוח JSON:", e);
+            res.status(500).json({ error: "פורמט JSON לא תקין" });
+        }
+    });
+}
+
+async function loadDataIfEmpty() {
+    try {
+        const count = await Item.countDocuments();
+        if (count === 0) {
+            const filePath = path.join(__dirname, "../data/data.json");
+            const rawData = fs.readFileSync(filePath, "utf8");
+            const items = JSON.parse(rawData);
+            await Item.insertMany(items);
+            console.log("✅ data.json loaded into MongoDB");
+        } else {
+            console.log("ℹ️ Items already exist in database, skipping load");
+        }
+    } catch (err) {
+        console.error("שגיאה בקריאת קובץ:", err);
+    }
+}
+
+function getItemsFromFile(req, res) {
+    const filePath = path.join(__dirname, '../data/Data.json');
 
     fs.readFile(filePath, 'utf8', (err, data) => {
         if (err) {
@@ -23,69 +62,67 @@ exports.getItemsFromFile = (req, res) => {
             res.status(500).json({ message: 'Invalid JSON format' });
         }
     });
-};
-// controller/recommendation.controller.js
-exports.getSmartRecommendations = async (req, res) => {
+}
+
+function getPaginatedItemsFromFile(req, res) {
+    const offset = parseInt(req.query.offset) || 0;
+    const limit = parseInt(req.query.limit) || 50;
+    const filePath = path.resolve(__dirname, "../data/data.json");
+
+    fs.readFile(filePath, "utf8", (err, data) => {
+        if (err) {
+            console.error("שגיאה בקריאת קובץ:", err);
+            return res.status(500).json({ error: "שגיאה בקריאת הקובץ" });
+        }
+
+        try {
+            const allItems = JSON.parse(data);
+            const paginatedItems = allItems.slice(offset, offset + limit);
+            res.json(paginatedItems);
+        } catch (e) {
+            console.error("שגיאה בניתוח JSON:", e);
+            res.status(500).json({ error: "פורמט JSON לא תקין" });
+        }
+    });
+}
+
+async function getSmartRecommendations(req, res) {
     const { username } = req.params;
 
     try {
-        // שלב 1: שליפת קבוצות של המשתמש
         const userGroups = await Group.find({ members: username });
         const groupNames = userGroups.map(g => g.groupName);
-
-        // שלב 2: שליפת רכישות
         const allHistory = await History.find({});
         const now = new Date();
-
-        // שלב 3: בניית שכבות מידע
-        const scoreMap = new Map(); // itemName -> score info
+        const scoreMap = new Map();
 
         for (const entry of allHistory) {
-            const name = entry.itemName;
-            const key = name;
-
+            const key = entry.itemName;
             if (!scoreMap.has(key)) {
                 scoreMap.set(key, {
-                    itemName: name,
+                    itemName: key,
                     lastPurchased: entry.date,
                     userCount: 0,
                     groupCount: 0,
-                    globalCount: 0,
-                    totalDaysBetween: 0,
-                    intervalCount: 0
+                    globalCount: 0
                 });
             }
 
             const data = scoreMap.get(key);
-
-            // עדכון אחרון קנייה
             if (entry.date > data.lastPurchased) {
                 data.lastPurchased = entry.date;
             }
 
-            // ניקוד לפי רמה
-            if (entry.username === username) {
-                data.userCount++;
-            } else if (groupNames.includes(entry.groupName)) {
-                data.groupCount++;
-            } else {
-                data.globalCount++;
-            }
+            if (entry.username === username) data.userCount++;
+            else if (groupNames.includes(entry.groupName)) data.groupCount++;
+            else data.globalCount++;
         }
 
-        // שלב 4: ניקוד כולל
         const scored = [];
-        for (const [_, item] of scoreMap) {
-            const score =
-                item.userCount * 0.5 +
-                item.groupCount * 0.3 +
-                item.globalCount * 0.2;
-
-            // בונוס אם עבר זמן רב
+        for (const item of scoreMap.values()) {
+            let score = item.userCount * 0.5 + item.groupCount * 0.3 + item.globalCount * 0.2;
             const daysSince = (now - item.lastPurchased) / (1000 * 60 * 60 * 24);
-            if (daysSince > 14) {
-                score += 1.5;
-            }
+            if (daysSince > 14) score += 1.5;
 
             scored.push({
                 itemName: item.itemName,
@@ -96,7 +133,6 @@ exports.getSmartRecommendations = async (req, res) => {
             });
         }
 
-        // שלב 5: סינון מוצרים שנרכשו ממש עכשיו או קיימים ברשימת הקבוצה
         const selectedMap = userGroups.reduce((map, group) => {
             for (const [item, qty] of group.selectedItems.entries()) {
                 map[item] = true;
@@ -104,11 +140,7 @@ exports.getSmartRecommendations = async (req, res) => {
             return map;
         }, {});
 
-        const filtered = scored.filter(i => {
-            return !selectedMap[i.itemName] && i.daysSince > 3;
-        });
-
-        // שלב 6: החזרת ההמלצות
+        const filtered = scored.filter(i => !selectedMap[i.itemName] && i.daysSince > 3);
         filtered.sort((a, b) => b.score - a.score);
 
         res.json({ recommendations: filtered.slice(0, 10) });
@@ -116,9 +148,9 @@ exports.getSmartRecommendations = async (req, res) => {
         console.error("❌ Recommendation error:", err);
         res.status(500).json({ message: "Recommendation failed", error: err.message });
     }
-};
+}
 
-exports.getRecommendations = async (req, res) => {
+async function getRecommendations(req, res) {
     const { groupName } = req.params;
 
     try {
@@ -154,7 +186,8 @@ exports.getRecommendations = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Server error", error });
     }
-};
+}
+
 async function storeFinalizedItems(itemsMap, groupName) {
     for (const [itemName, data] of Object.entries(itemsMap)) {
         const { quantity, category, imageUrl } = data;
@@ -173,41 +206,32 @@ async function storeFinalizedItems(itemsMap, groupName) {
     }
 }
 
-// Get All Unbought Items
-exports.getUnboughtItems = async (req, res) => {
+async function getUnboughtItems(req, res) {
     try {
         const items = await Item.find({ isBought: false });
         res.status(200).json(items);
     } catch (error) {
         res.status(500).json({ message: 'Server Error', error: error.message });
     }
-};
+}
 
-// Get History Sorted by Timestamp (Descending)
-exports.getHistory = async (req, res) => {
+async function getHistory(req, res) {
     try {
         const history = await History.find().sort({ timestamp: -1 });
         res.status(200).json(history);
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
-};
+}
 
-exports.addHistory = async (req, res) => {
+async function addHistory(req, res) {
     try {
         const {
-            itemName,
-            action,
-            price,
-            category,
-            imageUrl,
-            groupName,
-            username,
-            quantity
+            itemName, action, price, category, imageUrl,
+            groupName, username, quantity
         } = req.body;
 
         const parsedQuantity = parseInt(quantity);
-        console.log("📦 quantity (parsed):", parsedQuantity, typeof parsedQuantity);
 
         const newHistory = new History({
             itemName,
@@ -224,14 +248,11 @@ exports.addHistory = async (req, res) => {
         await newHistory.save();
         res.status(201).json({ message: 'History entry added successfully' });
     } catch (error) {
-        console.error("❌ Error in addHistory:", error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
-};
+}
 
-
-// Get History by Group
-exports.getHistoryByGroup = async (req, res) => {
+async function getHistoryByGroup(req, res) {
     try {
         const { groupName } = req.params;
         const history = await History.find({ groupName }).sort({ timestamp: -1 });
@@ -239,10 +260,9 @@ exports.getHistoryByGroup = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
-};
+}
 
-// Update Item Status
-exports.updateItemStatus = async (req, res) => {
+async function updateItemStatus(req, res) {
     try {
         const { name, isBought, groupName } = req.body;
         const item = await Item.findOne({ name, groupName });
@@ -258,25 +278,23 @@ exports.updateItemStatus = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
-};
+}
 
-// Full History
-exports.getFullHistory = async (req, res) => {
+async function getFullHistory(req, res) {
     try {
         const history = await History.find().sort({ timestamp: -1 });
         res.status(200).json(history);
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
-};
+}
 
-// ✅ Popular Items
-exports.getPopularItems = async (req, res) => {
+async function getPopularItems(req, res) {
     const { groupName } = req.params;
 
     try {
         const topItems = await History.aggregate([
-            { $match: { groupName: groupName, action: "bought" } },
+            { $match: { groupName, action: "bought" } },
             {
                 $group: {
                     _id: "$itemName",
@@ -298,12 +316,11 @@ exports.getPopularItems = async (req, res) => {
 
         res.status(200).json(formatted);
     } catch (error) {
-        console.error("Error fetching popular items:", error);
         res.status(500).json({ message: "Server error", error: error.message });
     }
-};
+}
 
-exports.getPopularFinalizedItems = async (req, res) => {
+async function getPopularFinalizedItems(req, res) {
     const { groupName } = req.params;
 
     try {
@@ -330,4 +347,21 @@ exports.getPopularFinalizedItems = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Server error", error: error.message });
     }
+}
+
+module.exports = {
+    loadDataIfEmpty,
+    getItemsFromFile,
+    getPaginatedItemsFromFile,
+    getSmartRecommendations,
+    getRecommendations,
+    getUnboughtItems,
+    getHistory,
+    addHistory,
+    getHistoryByGroup,
+    updateItemStatus,
+    getFullHistory,
+    getPopularItems,
+    getPopularFinalizedItems,
+    searchItems
 };

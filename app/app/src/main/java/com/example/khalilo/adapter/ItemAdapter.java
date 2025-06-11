@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -36,8 +35,21 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     private String username;
     private HashMap<String, Integer> quantityMap = new HashMap<>();
     private HashMap<String, Item> itemMap = new HashMap<>();
-    private OnItemChangeListener onItemChangeListener;
     private HashMap<Item, Integer> selectedItems = new HashMap<>();
+
+    // Listeners for activity communication
+    private OnItemChangeListener onItemChangeListener;
+    private OnItemDeleteListener deleteListener;
+
+    // Interface to notify about quantity changes
+    public interface OnItemChangeListener {
+        void onItemChanged();
+    }
+
+    // Interface to notify about delete clicks
+    public interface OnItemDeleteListener {
+        void onItemDelete(Item item);
+    }
 
     public ItemAdapter(Context context, List<Item> itemList, String groupName, String username) {
         this.context = context;
@@ -57,9 +69,15 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         this.onItemChangeListener = listener;
     }
 
+    // Method to set the delete listener from the Activity
+    public void setOnItemDeleteListener(OnItemDeleteListener listener) {
+        this.deleteListener = listener;
+    }
+
     @NonNull
     @Override
     public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        // Ensure you are using the correct layout file that includes the delete button
         View view = LayoutInflater.from(context).inflate(R.layout.item_home, parent, false);
         return new ItemViewHolder(view);
     }
@@ -72,7 +90,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         String key = item.getName();
         holder.itemName.setText(key);
 
-        // תמונה
         if (item.getImg() != null && item.getImg().startsWith("data:image")) {
             try {
                 String base64Image = item.getImg().split(",")[1];
@@ -80,31 +97,43 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                 Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
                 holder.itemImage.setImageBitmap(decodedByte);
             } catch (Exception e) {
-                holder.itemImage.setImageResource(R.drawable.apple);
+                holder.itemImage.setImageResource(R.drawable.no_img);
             }
-        } else if (item.getImg() != null) {
+        } else if (item.getImg() != null && !item.getImg().isEmpty()) {
             Glide.with(context)
                     .load(item.getImg())
-                    .placeholder(R.drawable.apple)
+                    .placeholder(R.drawable.no_img)
                     .into(holder.itemImage);
         } else {
-            holder.itemImage.setImageResource(R.drawable.apple);
+            // No image available, show default and fetch from server
+            holder.itemImage.setImageResource(R.drawable.no_img);
+            ApiService apiService = RetrofitClient.getRetrofitInstance().create(ApiService.class);
+            apiService.searchItems(item.getName()).enqueue(new Callback<List<Item>>() {
+                @Override
+                public void onResponse(Call<List<Item>> call, Response<List<Item>> response) {
+                    if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
+                        Item fetched = response.body().get(0);
+                        item.setImg(fetched.getImg());
+                        notifyItemChanged(holder.getAdapterPosition());
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<List<Item>> call, Throwable t) {
+                    // keep default image
+                }
+            });
         }
 
         int quantity = quantityMap.getOrDefault(key, 0);
         holder.itemQuantity.setText(String.valueOf(quantity));
 
-        // לחצן הגדלה
         holder.btnIncrease.setOnClickListener(v -> {
-            int currentQuantity = (quantityMap.containsKey(key) ? quantityMap.get(key) : 0) + 1;
+            int currentQuantity = quantityMap.getOrDefault(key, 0) + 1;
             quantityMap.put(key, currentQuantity);
             holder.itemQuantity.setText(String.valueOf(currentQuantity));
             selectedItems.put(item, currentQuantity);
-
-            if (currentQuantity > 0) {
-                addToHistory(item, currentQuantity, "Increased");
-            }
-
+            addToHistory(item, currentQuantity, "Increased");
             if (onItemChangeListener != null) {
                 onItemChangeListener.onItemChanged();
             }
@@ -116,56 +145,65 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                 currentQuantity--;
                 quantityMap.put(key, currentQuantity);
                 holder.itemQuantity.setText(String.valueOf(currentQuantity));
-                selectedItems.put(item, currentQuantity);
-
+                if (currentQuantity == 0) {
+                    selectedItems.remove(item);
+                } else {
+                    selectedItems.put(item, currentQuantity);
+                }
                 addToHistory(item, currentQuantity, "Decreased");
-
                 if (onItemChangeListener != null) {
                     onItemChangeListener.onItemChanged();
                 }
             }
         });
 
+        holder.btnDeleteItem.setOnClickListener(v -> {
+            if (deleteListener != null) {
+                int adapterPosition = holder.getAdapterPosition();
+                if (adapterPosition != RecyclerView.NO_POSITION) {
+                    deleteListener.onItemDelete(itemList.get(adapterPosition));
+                }
+            }
+        });
     }
 
+
     private void addToHistory(Item item, Integer quantity, String action) {
-        if (item == null || item.getName() == null || quantity <= 0) {
-            return; // אל תשלח לשרת אם הכמות לא תקפה
+        if (item == null || item.getName() == null) {
+            return;
         }
 
         Map<String, Object> body = new HashMap<>();
         body.put("itemName", item.getName());
         body.put("imageUrl", item.getImg());
         body.put("action", action);
-        body.put("quantity", Integer.valueOf(quantity));        body.put("category", item.getCategory());
+        body.put("quantity", quantity);
+        body.put("category", item.getCategory() != null ? item.getCategory() : "Unknown");
         body.put("groupName", groupName);
         body.put("username", username);
-        String category = item.getCategory() != null ? item.getCategory() : "Unknown";
-        body.put("category", category);
-
-        quantity = (quantity == null ? 0 : quantity);
 
         ApiService apiService = RetrofitClient.getRetrofitInstance().create(ApiService.class);
         Call<Void> call = apiService.addHistory(body);
-
         call.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
-                if (!response.isSuccessful()) {
-                    Toast.makeText(context, "Failed to sync history", Toast.LENGTH_SHORT).show();
-                }
+                // Silently fail or log for debugging
             }
-
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                Toast.makeText(context, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                // Silently fail
             }
         });
     }
 
-
     public HashMap<Item, Integer> getSelectedItems() {
-        return selectedItems;
+        HashMap<Item, Integer> currentSelectedItems = new HashMap<>();
+        for (Map.Entry<String, Integer> entry : quantityMap.entrySet()) {
+            if (entry.getValue() > 0 && itemMap.containsKey(entry.getKey())) {
+                currentSelectedItems.put(itemMap.get(entry.getKey()), entry.getValue());
+            }
+        }
+        return currentSelectedItems;
     }
 
     @Override
@@ -174,31 +212,53 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     }
 
     public void updateList(List<Item> newList) {
-        itemList = newList;
-        itemMap.clear();
-        quantityMap.clear();
+        this.itemList = newList;
 
+        // השאר את quantityMap הקיים ולא תחליף אותו
         for (Item item : newList) {
-            if (item != null && item.getName() != null) {
-                itemMap.put(item.getName(), item);
-                quantityMap.put(item.getName(), 0);
+            String name = item.getName();
+            if (!quantityMap.containsKey(name)) {
+                quantityMap.put(name, 0);  // הוסף חדש אם לא קיים
+            }
+            if (!itemMap.containsKey(name)) {
+                itemMap.put(name, item);
             }
         }
 
         notifyDataSetChanged();
     }
 
-    public void restoreSelectedItems(HashMap<Item, Integer> restoredItems) {
-        selectedItems.clear();
-        quantityMap.clear();
 
-        for (Map.Entry<Item, Integer> entry : restoredItems.entrySet()) {
-            Item item = entry.getKey();
-            if (item != null && item.getName() != null) {
-                selectedItems.put(item, entry.getValue());
-                quantityMap.put(item.getName(), entry.getValue());
-                itemMap.put(item.getName(), item);
-            }
+    /**
+     * Increases the quantity of a specific item, typically called from outside the adapter (e.g., from suggestions).
+     * @param item The item to increase the quantity for.
+     */
+    public void increaseItem(Item item) {
+        if (item == null || item.getName() == null) return;
+
+        String key = item.getName();
+
+        // הוסף ל־itemMap אם עדיין לא קיים
+        if (!itemMap.containsKey(key)) {
+            itemMap.put(key, item);
+        }
+
+        // הוסף ל־quantityMap אם לא קיים
+        int currentQuantity = quantityMap.getOrDefault(key, 0) + 1;
+        quantityMap.put(key, currentQuantity);
+
+        // הוסף ל־selectedItems
+        selectedItems.put(item, currentQuantity);
+
+        // אם לא קיים ב־itemList (רשימת התצוגה), הוסף אותו
+        if (!itemList.contains(item)) {
+            itemList.add(item);
+        }
+
+        addToHistory(item, currentQuantity, "Increased");
+
+        if (onItemChangeListener != null) {
+            onItemChangeListener.onItemChanged();
         }
 
         notifyDataSetChanged();
@@ -207,7 +267,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     public static class ItemViewHolder extends RecyclerView.ViewHolder {
         ImageView itemImage;
         TextView itemName, itemQuantity;
-        ImageButton btnIncrease, btnDecrease;
+        ImageButton btnIncrease, btnDecrease, btnDeleteItem; // Delete button is included here
 
         public ItemViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -216,27 +276,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
             itemQuantity = itemView.findViewById(R.id.itemQuantity);
             btnIncrease = itemView.findViewById(R.id.btnIncrease);
             btnDecrease = itemView.findViewById(R.id.btnDecrease);
+            btnDeleteItem = itemView.findViewById(R.id.btnDeleteItem); // Initialize from layout
         }
-    }
-    public void increaseItem(Item item) {
-        if (item == null || item.getName() == null) return;
-
-        String key = item.getName();
-        int currentQuantity = (quantityMap.containsKey(key) ? quantityMap.get(key) : 0);
-        quantityMap.put(key, currentQuantity);
-        selectedItems.put(item, currentQuantity);
-
-        if (currentQuantity > 0) {
-            addToHistory(item, currentQuantity, "Increased");
-        }
-
-        if (onItemChangeListener != null) {
-            onItemChangeListener.onItemChanged();
-        }
-
-        notifyDataSetChanged();  // Refresh UI
-    }
-    public interface OnItemChangeListener {
-        void onItemChanged();
     }
 }

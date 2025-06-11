@@ -26,63 +26,73 @@
             android:padding="8dp" />
 
         <!-- Item Details -->
-        <LinearLayout
+        <FrameLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:paddingStart="16dp">
+            android:layout_weight="1">
 
-            <TextView
-                android:id="@+id/itemName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Item Name"
-                android:textStyle="bold"
-                android:textSize="18sp"
-                android:textColor="@color/cardText" />
-
-            <!-- Quantity Layout -->
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="8dp">
+                android:orientation="vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
 
-
-                <!-- Increase Button -->
-                <ImageButton
-                    android:id="@+id/btnDecrease"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="@drawable/circle_button"
-                    android:src="@drawable/ic_minus"
-                    android:contentDescription="Increase" />
-
-
-                <!-- Quantity Display -->
                 <TextView
-                    android:id="@+id/itemQuantity"
+                    android:id="@+id/itemName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:text="1"
-                    android:textColor="@color/secondary_text"
-                    android:textSize="18sp" />
+                    android:text="Item Name"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:textColor="@color/cardText" />
 
-                <!-- Increase Button -->
-                <ImageButton
-                    android:id="@+id/btnIncrease"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="@drawable/circle_button"
-                    android:src="@drawable/ic_add"
-                    android:contentDescription="Increase" />
+                <!-- Quantity Layout -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="8dp">
 
+                    <ImageButton
+                        android:id="@+id/btnDecrease"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/circle_button"
+                        android:src="@drawable/ic_minus"
+                        android:contentDescription="Decrease" />
 
+                    <TextView
+                        android:id="@+id/itemQuantity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:text="1"
+                        android:textColor="@color/secondary_text"
+                        android:textSize="18sp" />
+
+                    <ImageButton
+                        android:id="@+id/btnIncrease"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/circle_button"
+                        android:src="@drawable/ic_add"
+                        android:contentDescription="Increase" />
+                </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
+
+            <!-- Delete Button overlaid -->
+            <ImageButton
+                android:id="@+id/btnDeleteItem"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="top|end"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Delete Item"
+                android:layout_margin="4dp"/>
+        </FrameLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

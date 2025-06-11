@@ -130,4 +130,9 @@ public interface ApiService {
     @GET("items/from-file")
     Call<List<Item>> getItemsFromFile();
 
+    @GET("items/from-file-paginated")
+    Call<List<Item>> getPaginatedItems(@Query("offset") int offset, @Query("limit") int limit);
+    @GET("items/search")
+    Call<List<Item>> searchItems(@Query("query") String query);
+
 }
