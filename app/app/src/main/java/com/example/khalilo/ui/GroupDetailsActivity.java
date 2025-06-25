@@ -55,7 +55,13 @@ public class GroupDetailsActivity extends AppCompatActivity {
             intent.putExtra("username", username);
             startActivity(intent);
         });
-
+        CardView btnFavoriteStores = findViewById(R.id.btnFavoriteStores);
+        btnFavoriteStores.setOnClickListener(v -> {
+            Intent intent = new Intent(GroupDetailsActivity.this, FavoriteStoresActivity.class);
+            intent.putExtra("groupName", groupName);
+            intent.putExtra("username", username);
+            startActivity(intent);
+        });
         // Set Click Listener for Deleting Members
         btnDeleteMembers.setOnClickListener(v -> {
             Intent intent = new Intent(GroupDetailsActivity.this, DeleteMemberActivity.class);

@@ -6,8 +6,8 @@ const GroupSchema = new mongoose.Schema({
     maxUsers: { type: Number, required: true },
     adminName: { type: String, required: true },
     members: { type: [String], default: [] },
-    selectedItems: { type: Map, of: Number, default: {} }  // Store item names as keys
+    selectedItems: { type: Map, of: Number, default: {} },
+    favoriteStores: { type: [String], default: [] } 
 });
-
 
 module.exports = mongoose.model('Group', GroupSchema);

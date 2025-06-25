@@ -15,6 +15,9 @@ import java.util.Map;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
@@ -134,5 +137,16 @@ public interface ApiService {
     Call<List<Item>> getPaginatedItems(@Query("offset") int offset, @Query("limit") int limit);
     @GET("items/search")
     Call<List<Item>> searchItems(@Query("query") String query);
+    @GET("groups/{groupName}/favorites")
+    Call<Map<String, List<String>>> getFavoriteStores(@Path("groupName") String groupName);
+
+    @POST("groups/{groupName}/favorites")
+    Call<Void> addFavoriteStore(@Path("groupName") String groupName, @Body Map<String, String> body);
+
+    @DELETE("groups/{groupName}/favorites")
+    Call<Void> removeFavoriteStore(@Path("groupName") String groupName, @Body Map<String, String> body);
+    @POST("items/increase-score")
+    @FormUrlEncoded
+    Call<Void> increaseRecommendationScore(@Field("itemName") String itemName);
 
 }

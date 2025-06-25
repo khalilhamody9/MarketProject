@@ -7,6 +7,7 @@ import android.location.Geocoder;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,23 +49,29 @@ public class ComparePricesActivity extends AppCompatActivity {
     private String username, groupName;
     private RecyclerView shopRecyclerView;
     private TextView emptyMessage;
-    private ProgressBar loadingSpinner; // or ImageView loadingLogo;
+    private ProgressBar loadingSpinner;
+    private boolean showOnlyFavorites = true;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_compare_prices); // 🔁 must come before findViewById
+        setContentView(R.layout.activity_compare_prices);
 
         emptyMessage = findViewById(R.id.emptyMessage);
-        loadingSpinner = findViewById(R.id.loadingSpinner); // 🔁 fixed: after setContentView
-
+        loadingSpinner = findViewById(R.id.loadingSpinner);
         selectedItems = (HashMap<Item, Integer>) getIntent().getSerializableExtra("selectedItems");
         username = getIntent().getStringExtra("username");
         groupName = getIntent().getStringExtra("groupName");
 
         shopRecyclerView = findViewById(R.id.recyclerViewShops);
         shopRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        ImageButton toggleViewMode = findViewById(R.id.toggleViewMode);
+        toggleViewMode.setOnClickListener(v -> {
+            showOnlyFavorites = !showOnlyFavorites;
+            fetchLastScrape();
+        });
 
         requestLocationPermissionAndFetch();
     }
@@ -152,9 +159,9 @@ public class ComparePricesActivity extends AppCompatActivity {
 
 
     private void showCitySelectionDialog(List<Map<String, String>> productList) {
-        String[] cities = { "תל אביב", "ירושלים", "חיפה", "באר שבע", "אשדוד", "אשקלון", "ראשון לציון",
+        String[] cities = {"תל אביב", "ירושלים", "חיפה", "באר שבע", "אשדוד", "אשקלון", "ראשון לציון",
                 "פתח תקווה", "רמת גן", "נתניה", "הרצליה", "כפר סבא", "הוד השרון", "רעננה",
-                "אילת", "טבריה", "נצרת", "עפולה", "נהריה", "קריית שמונה", "מודיעין", "קרית גת" };
+                "אילת", "טבריה", "נצרת", "עפולה", "נהריה", "קריית שמונה", "מודיעין", "קרית גת"};
         new AlertDialog.Builder(this)
                 .setTitle("בחר עיר להשוואת מחירים")
                 .setItems(cities, (dialog, which) -> {
@@ -227,18 +234,14 @@ public class ComparePricesActivity extends AppCompatActivity {
     }
 
     private void fetchLastScrape() {
-        loadingSpinner.setVisibility(View.VISIBLE); // ✅ Show spinner
-
+        loadingSpinner.setVisibility(View.VISIBLE);
         ApiService apiService = RetrofitClient.getRetrofitInstance().create(ApiService.class);
-
         apiService.getLastScrape(groupName).enqueue(new Callback<Map<String, Object>>() {
             @Override
             public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
-                loadingSpinner.setVisibility(View.GONE); // ✅ Hide spinner
-
+                loadingSpinner.setVisibility(View.GONE);
                 if (response.isSuccessful() && response.body() != null) {
                     Object shopsObj = response.body().get("shops");
-
                     if (shopsObj instanceof Map) {
                         Map<String, List<Map<String, Object>>> shopsMap = (Map<String, List<Map<String, Object>>>) shopsObj;
                         List<ShopWithProducts> shopList = new ArrayList<>();
@@ -251,33 +254,32 @@ public class ComparePricesActivity extends AppCompatActivity {
 
                                 List<ShopWithProducts.Product> products = new ArrayList<>();
                                 double total = 0;
-
                                 for (Map<String, Object> productData : entry.getValue()) {
                                     String name = (String) productData.get("שם המוצר");
                                     String priceStr = (String) productData.get("מחיר");
                                     String sale = (String) productData.get("מבצע");
-
                                     double price = 0;
                                     try {
                                         price = Double.parseDouble(priceStr.replace("₪", "").trim());
                                     } catch (Exception ignored) {}
-
                                     total += price;
                                     products.add(new ShopWithProducts.Product(name, priceStr, sale));
                                 }
-
                                 shop.setProducts(products);
                                 shop.setTotalPrice(total);
                                 shopList.add(shop);
                             }
                         }
 
-                        // ✅ בדיקה והודעה למשתמש
                         if (shopList.isEmpty()) {
-                            Toast.makeText(ComparePricesActivity.this, "⚠️ לא נמצאו תוצאות. מוצגת סריקה אחרונה ללא חנויות פעילות.", Toast.LENGTH_LONG).show();
+                            Toast.makeText(ComparePricesActivity.this, "⚠️ לא נמצאו תוצאות.", Toast.LENGTH_LONG).show();
                         }
 
-                        showShopResults(shopList); // <- הצגת התוצאות
+                        if (showOnlyFavorites) {
+                            fetchFavoriteStores(groupName, shopList);
+                        } else {
+                            showShopResults(shopList);
+                        }
                     }
                 } else {
                     Toast.makeText(ComparePricesActivity.this, "שגיאה בנתונים מהשרת", Toast.LENGTH_SHORT).show();
@@ -286,12 +288,53 @@ public class ComparePricesActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<Map<String, Object>> call, Throwable t) {
-                loadingSpinner.setVisibility(View.GONE); // ✅ Hide on error
-
+                loadingSpinner.setVisibility(View.GONE);
                 Toast.makeText(ComparePricesActivity.this, "שגיאה בטעינת חנויות", Toast.LENGTH_SHORT).show();
             }
         });
     }
+
+    private void fetchFavoriteStores(String groupName, List<ShopWithProducts> fullList) {
+        ApiService apiService = RetrofitClient.getRetrofitInstance().create(ApiService.class);
+
+        apiService.getFavoriteStores(groupName).enqueue(new Callback<Map<String, List<String>>>() {
+            @Override
+            public void onResponse(Call<Map<String, List<String>>> call, Response<Map<String, List<String>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<String> favoriteList = response.body().get("favoriteStores");
+                    List<ShopWithProducts> filtered = new ArrayList<>();
+
+                    for (ShopWithProducts shop : fullList) {
+                        String shopKey = shop.getShopKey().toLowerCase().trim();
+
+                        for (String favorite : favoriteList) {
+                            String fav = favorite.toLowerCase().trim();
+                            if (shopKey.contains(fav)) {
+                                filtered.add(shop);
+                                break;
+                            }
+                        }
+                    }
+
+                    showShopResults(filtered);  // ✅ הצג רק חנויות מועדפות
+                } else {
+                    showShopResults(fullList); // fallback במקרה שאין מועדפים או תגובה שגויה
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Map<String, List<String>>> call, Throwable t) {
+                showShopResults(fullList); // fallback במקרה של כשל רשת
+            }
+        });
+    }
+
+
+    private void showShopResults(List<ShopWithProducts> shopList) {
+        ShopWithProductsAdapter adapter = new ShopWithProductsAdapter(this, shopList);
+        shopRecyclerView.setAdapter(adapter);
+    }
+
 
 
     private ShopWithProducts parseShopWithProducts(Map<String, Object> map) {
@@ -328,8 +371,5 @@ public class ComparePricesActivity extends AppCompatActivity {
         return cityName.trim().replace("־", "-");
     }
 
-    private void showShopResults(List<ShopWithProducts> shopList) {
-        ShopWithProductsAdapter adapter = new ShopWithProductsAdapter(this, shopList);
-        shopRecyclerView.setAdapter(adapter);
-    }
+
 }

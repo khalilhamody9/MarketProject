@@ -300,6 +300,54 @@ router.get('/:groupName/members', async (req, res) => {
     }
 });
 
+router.post('/:groupName/favorites', async (req, res) => {
+    const { shopName } = req.body;
+    const { groupName } = req.params;
+
+    try {
+        const group = await Group.findOneAndUpdate(
+            { groupName },
+            { $addToSet: { favoriteStores: shopName } },
+            { new: true }
+        );
+
+        if (!group) return res.status(404).json({ message: "Group not found" });
+
+        res.json({ message: "Shop added to favorites", favoriteStores: group.favoriteStores });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error });
+    }
+});
+router.get('/:groupName/favorites', async (req, res) => {
+    try {
+        const group = await Group.findOne({ groupName: req.params.groupName });
+
+        if (!group) return res.status(404).json({ message: "Group not found" });
+
+        res.json({ favoriteStores: group.favoriteStores || [] });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error });
+    }
+});
+
+router.delete('/:groupName/favorites', async (req, res) => {
+    const { shopName } = req.body;
+    const { groupName } = req.params;
+
+    try {
+        const group = await Group.findOneAndUpdate(
+            { groupName },
+            { $pull: { favoriteStores: shopName } },
+            { new: true }
+        );
+
+        if (!group) return res.status(404).json({ message: "Group not found" });
+
+        res.json({ message: "Shop removed from favorites", favoriteStores: group.favoriteStores });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error });
+    }
+});
 
 // Save or Clear Selected Items
 router.post('/saveSelectedItems', async (req, res) => {

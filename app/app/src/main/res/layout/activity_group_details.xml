@@ -211,7 +211,40 @@
                         android:textColor="@color/categoryBathroom" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView
+                android:id="@+id/btnFavoriteStores"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="8dp"
+                android:background="@android:color/white"
+                android:clickable="true"
+                android:focusable="true">
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center">
+
+                    <ImageView
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:src="@drawable/popular"
+                        android:contentDescription="Favorite Stores" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="Favorite Stores"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/categoryBathroom" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
             <!-- ➕ Add Members -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/btnAddMembers"

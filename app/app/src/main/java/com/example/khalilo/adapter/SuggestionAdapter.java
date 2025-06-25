@@ -84,6 +84,22 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Su
                     itemAdapter.increaseItem(i);
                     Toast.makeText(context, i.getName() + " added", Toast.LENGTH_SHORT).show();
                     holder.itemView.setVisibility(View.GONE);
+
+                    Call<Void> scoreCall = apiService.increaseRecommendationScore(history.getItemName());
+                    scoreCall.enqueue(new Callback<Void>() {
+                        @Override
+                        public void onResponse(Call<Void> call, Response<Void> response) {
+                            if (!response.isSuccessful()) {
+                                Log.w("ScoreUpdate", "Failed to update score for " + history.getItemName());
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<Void> call, Throwable t) {
+                            Log.e("ScoreUpdate", "Error updating score", t);
+                        }
+                    });
+
                     return;
                 }
             }
@@ -102,6 +118,22 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Su
 
                         Toast.makeText(context, fetched.getName() + " added", Toast.LENGTH_SHORT).show();
                         holder.itemView.setVisibility(View.GONE);
+
+                        // ✅ עדכון ניקוד לאחר אישור המלצה
+                        Call<Void> scoreCall = apiService.increaseRecommendationScore(history.getItemName());
+                        scoreCall.enqueue(new Callback<Void>() {
+                            @Override
+                            public void onResponse(Call<Void> call, Response<Void> response) {
+                                if (!response.isSuccessful()) {
+                                    Log.w("ScoreUpdate", "Failed to update score for " + history.getItemName());
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<Void> call, Throwable t) {
+                                Log.e("ScoreUpdate", "Error updating score", t);
+                            }
+                        });
                     }
                 }
 
