@@ -31,6 +31,8 @@ const shopProductsRoute = require('./routes/shopProducts');
 app.use('/api/shop_products', shopProductsRoute);
 const scrapeRoutes = require("./routes/scrape");
 app.use("/api", scrapeRoutes);
+const mlRoutes = require('./routes/recommendations');
+app.use('/api', mlRoutes); // זה יאפשר ל-route שלך להגיב על /api/ml/:username
 
 // Default Route
 app.get('/', (req, res) => {

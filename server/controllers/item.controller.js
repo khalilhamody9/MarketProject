@@ -5,6 +5,182 @@ const { spawn } = require("child_process");
 const Group = require('../models/Group');
 const fs = require('fs');
 const path = require('path');
+async function increaseRecommendationScore(req, res) {
+    const { itemName } = req.body;
+    try {
+        const item = await Item.findOne({ name: itemName });
+        if (!item) return res.status(404).json({ message: "Item not found" });
+
+        item.score = (item.score || 0) + 1;
+        await item.save();
+
+        res.status(200).json({ message: "Score updated", score: item.score });
+    } catch (err) {
+        console.error("Failed to update score:", err);
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+}
+async function getSmartRecommendationsInternal(username) {
+    const userGroups = await Group.find({ members: username });
+    const groupNames = userGroups.map(g => g.groupName);
+    const allHistory = await History.find({});
+    const now = new Date();
+    const scoreMap = new Map();
+
+    for (const entry of allHistory) {
+        const key = entry.itemName;
+        if (!scoreMap.has(key)) {
+            scoreMap.set(key, {
+                itemName: key,
+                lastPurchased: entry.date,
+                userCount: 0,
+                groupCount: 0,
+                globalCount: 0
+            });
+        }
+
+        const data = scoreMap.get(key);
+        if (entry.date > data.lastPurchased) {
+            data.lastPurchased = entry.date;
+        }
+
+        if (entry.username === username) data.userCount++;
+        else if (groupNames.includes(entry.groupName)) data.groupCount++;
+        else data.globalCount++;
+    }
+
+    const itemNames = Array.from(scoreMap.keys());
+    const dbItems = await Item.find({ name: { $in: itemNames } });
+    const itemScoreMap = new Map();
+    for (const dbItem of dbItems) {
+        itemScoreMap.set(dbItem.name, dbItem.score || 0);
+    }
+
+    const scored = [];
+    for (const item of scoreMap.values()) {
+        let score = item.userCount * 0.5 + item.groupCount * 0.3 + item.globalCount * 0.2;
+        const dbScore = itemScoreMap.get(item.itemName) || 0;
+        score += dbScore * 0.4;
+
+        const daysSince = (now - item.lastPurchased) / (1000 * 60 * 60 * 24);
+        if (daysSince > 14) score += 1.5;
+
+        scored.push({
+            itemName: item.itemName,
+            score: score.toFixed(2),
+            reason: `נרכש ${item.userCount} פעמים אישית, ${item.groupCount} קבוצתי, ${item.globalCount} כללית`,
+            daysSince: Math.floor(daysSince)
+        });
+    }
+
+    const selectedMap = userGroups.reduce((map, group) => {
+        for (const [item, qty] of group.selectedItems.entries()) {
+            map[item] = true;
+        }
+        return map;
+    }, {});
+
+    return scored
+        .filter(i => !selectedMap[i.itemName] && i.daysSince > 3)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 10);
+}
+
+// ----------------------------
+// פונקציה פנימית 2: המלצות לפי משתמשים דומים
+// ----------------------------
+async function getCollaborativeRecommendationsInternal(username) {
+    const allHistory = await History.find({});
+    const userPurchaseMap = new Map();
+
+    for (const h of allHistory) {
+        if (!userPurchaseMap.has(h.username)) {
+            userPurchaseMap.set(h.username, new Set());
+        }
+        userPurchaseMap.get(h.username).add(h.itemName);
+    }
+
+    const myItems = userPurchaseMap.get(username) || new Set();
+    const similarUsers = [];
+
+    for (const [otherUser, otherItems] of userPurchaseMap.entries()) {
+        if (otherUser === username) continue;
+
+        const intersection = new Set([...myItems].filter(x => otherItems.has(x)));
+        const union = new Set([...myItems, ...otherItems]);
+        const similarity = union.size === 0 ? 0 : intersection.size / union.size;
+
+        if (similarity >= 0.3) {
+            similarUsers.push({ username: otherUser, similarity, otherItems });
+        }
+    }
+
+    const recommendedMap = new Map();
+    for (const user of similarUsers) {
+        for (const item of user.otherItems) {
+            if (!myItems.has(item)) {
+                recommendedMap.set(item, (recommendedMap.get(item) || 0) + 1);
+            }
+        }
+    }
+
+    return [...recommendedMap.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 20)
+        .map(([itemName, count]) => ({ itemName, score: count, reason: `נקנה ע"י ${count} משתמשים דומים` }));
+}
+async function getSmartRecommendations(req, res) {
+    const { username } = req.params;
+
+    try {
+        const recommendations = await getSmartRecommendationsInternal(username);
+        res.json({ recommendations });
+    } catch (err) {
+        console.error("Smart Recommendation Error:", err);
+        res.status(500).json({ message: "Recommendation failed", error: err.message });
+    }
+}
+
+// ----------------------------
+// פונקציה משולבת: המלצה חכמה + דמיון משתמשים
+// ----------------------------
+async function getUnifiedRecommendations(req, res) {
+    const { username } = req.params;
+
+    try {
+        const smart = await getSmartRecommendationsInternal(username);
+        const collab = await getCollaborativeRecommendationsInternal(username);
+
+        const merged = new Map();
+
+        for (const rec of smart) {
+            if (!merged.has(rec.itemName)) {
+                merged.set(rec.itemName, { itemName: rec.itemName, score: 0, reason: [] });
+            }
+            const item = merged.get(rec.itemName);
+            item.score += parseFloat(rec.score);
+            item.reason.push(rec.reason);
+        }
+
+        for (const rec of collab) {
+            if (!merged.has(rec.itemName)) {
+                merged.set(rec.itemName, { itemName: rec.itemName, score: 0, reason: [] });
+            }
+            const item = merged.get(rec.itemName);
+            item.score += parseFloat(rec.score);
+            item.reason.push(rec.reason);
+        }
+
+        const result = Array.from(merged.values())
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 10);
+
+        res.json({ recommendations: result });
+    } catch (err) {
+        console.error("Unified Recommendation Error:", err);
+        res.status(500).json({ message: "Recommendation failed", error: err.message });
+    }
+}
 async function searchItems(req, res) {
     const query = req.query.query?.toLowerCase() || '';
     const filePath = path.resolve(__dirname, "../data/data.json");
@@ -86,107 +262,7 @@ function getPaginatedItemsFromFile(req, res) {
     });
 }
 
-async function getSmartRecommendations(req, res) {
-    const { username } = req.params;
 
-    try {
-        const userGroups = await Group.find({ members: username });
-        const groupNames = userGroups.map(g => g.groupName);
-        const allHistory = await History.find({});
-        const now = new Date();
-        const scoreMap = new Map();
-
-        for (const entry of allHistory) {
-            const key = entry.itemName;
-            if (!scoreMap.has(key)) {
-                scoreMap.set(key, {
-                    itemName: key,
-                    lastPurchased: entry.date,
-                    userCount: 0,
-                    groupCount: 0,
-                    globalCount: 0
-                });
-            }
-
-            const data = scoreMap.get(key);
-            if (entry.date > data.lastPurchased) {
-                data.lastPurchased = entry.date;
-            }
-
-            if (entry.username === username) data.userCount++;
-            else if (groupNames.includes(entry.groupName)) data.groupCount++;
-            else data.globalCount++;
-        }
-
-        const scored = [];
-        for (const item of scoreMap.values()) {
-            let score = item.userCount * 0.5 + item.groupCount * 0.3 + item.globalCount * 0.2;
-            const daysSince = (now - item.lastPurchased) / (1000 * 60 * 60 * 24);
-            if (daysSince > 14) score += 1.5;
-
-            scored.push({
-                itemName: item.itemName,
-                score: score.toFixed(2),
-                lastPurchased: item.lastPurchased,
-                reason: `נרכש ${item.userCount} פעמים אישית, ${item.groupCount} קבוצתי, ${item.globalCount} כללית`,
-                daysSince: Math.floor(daysSince)
-            });
-        }
-
-        const selectedMap = userGroups.reduce((map, group) => {
-            for (const [item, qty] of group.selectedItems.entries()) {
-                map[item] = true;
-            }
-            return map;
-        }, {});
-
-        const filtered = scored.filter(i => !selectedMap[i.itemName] && i.daysSince > 3);
-        filtered.sort((a, b) => b.score - a.score);
-
-        res.json({ recommendations: filtered.slice(0, 10) });
-    } catch (err) {
-        console.error("❌ Recommendation error:", err);
-        res.status(500).json({ message: "Recommendation failed", error: err.message });
-    }
-}
-
-async function getRecommendations(req, res) {
-    const { groupName } = req.params;
-
-    try {
-        const allItems = await FinalizedItem.find();
-        console.log("🔄 Sending finalized items to Python:", allItems);
-
-        const py = spawn("python", ["ml/recommend.py", groupName]);
-        let output = "";
-
-        py.stdout.on("data", (data) => {
-            output += data.toString();
-        });
-
-        py.stderr.on("data", (err) => {
-            console.error("Python error:", err.toString());
-        });
-
-        py.on("close", (code) => {
-            if (code !== 0) {
-                return res.status(500).json({ message: "Python script failed" });
-            }
-
-            try {
-                const result = JSON.parse(output);
-                res.json({ recommendations: result });
-            } catch (e) {
-                res.status(500).json({ message: "Invalid Python output" });
-            }
-        });
-
-        py.stdin.write(JSON.stringify(allItems));
-        py.stdin.end();
-    } catch (error) {
-        res.status(500).json({ message: "Server error", error });
-    }
-}
 
 async function storeFinalizedItems(itemsMap, groupName) {
     for (const [itemName, data] of Object.entries(itemsMap)) {
@@ -246,7 +322,25 @@ async function addHistory(req, res) {
         });
 
         await newHistory.save();
+
+        // 🚀 הפעלת אימון מודל דרך conda
+const { spawn } = require("child_process");
+const condaPath = "C:\\Users\\khali\\miniconda3\\Scripts\\conda.exe";
+const py = spawn(condaPath, [
+  "run", "--no-capture-output", "-n", "recsys", "python", "ml/train_model.py"
+], { env: { ...process.env, PYTHONIOENCODING: "utf-8" } });
+        py.stdout.on("data", data => console.log("ML Train:", data.toString()));
+        py.stderr.on("data", data => console.error("ML Train Error:", data.toString()));
+        py.on("close", (code) => {
+            if (code === 0) {
+                console.log("✅ Model training finished");
+            } else {
+                console.error("❌ Model training failed with code", code);
+            }
+        });
+
         res.status(201).json({ message: 'History entry added successfully' });
+
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
@@ -348,13 +442,20 @@ async function getPopularFinalizedItems(req, res) {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 }
-
+async function getRecommendations(req, res) {
+    try {
+        const items = await Item.find().limit(10);
+        res.status(200).json({ recommendations: items });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+}
 module.exports = {
     loadDataIfEmpty,
     getItemsFromFile,
+    getRecommendations,
     getPaginatedItemsFromFile,
     getSmartRecommendations,
-    getRecommendations,
     getUnboughtItems,
     getHistory,
     addHistory,
@@ -363,5 +464,7 @@ module.exports = {
     getFullHistory,
     getPopularItems,
     getPopularFinalizedItems,
-    searchItems
+    searchItems,
+    increaseRecommendationScore ,
+    getUnifiedRecommendations
 };

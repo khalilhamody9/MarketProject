@@ -144,8 +144,9 @@ public class Store extends AppCompatActivity implements ItemAdapter.OnItemDelete
             @Override public void afterTextChanged(Editable s) {}
         });
 
-//        setupCategoryButtons();
-        fetchRecommendations();
+        //setupCategoryButtons();
+        //fetchRecommendations();      // המלצה חכמה מהשרת
+        fetchMLRecommendations();    // המלצה מבוססת ML (מריץ predict_model.py)
     }
 
     // This is the implementation of the delete listener method
@@ -271,6 +272,25 @@ public class Store extends AppCompatActivity implements ItemAdapter.OnItemDelete
         findViewById(R.id.btnMeat).setOnClickListener(v -> filterByCategory("Meat"));
         findViewById(R.id.btnPantry).setOnClickListener(v -> filterByCategory("Pantry"));
         findViewById(R.id.btnVegetables).setOnClickListener(v -> filterByCategory("Vegetables"));
+    }
+    private void fetchMLRecommendations() {
+        Call<RecommendationResponse> call = apiService.getMLRecommendations(username);
+        call.enqueue(new Callback<RecommendationResponse>() {
+            @Override
+            public void onResponse(Call<RecommendationResponse> call, Response<RecommendationResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<History> suggestions = response.body().getRecommendations();
+                    if (suggestions != null && !suggestions.isEmpty()) {
+                        showSuggestionsDialog(suggestions);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<RecommendationResponse> call, Throwable t) {
+                Toast.makeText(Store.this, "Failed to fetch ML suggestions", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void fetchRecommendations() {

@@ -5,7 +5,6 @@ const ItemSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-
     category: {
         type: String,
         required: true
@@ -16,11 +15,15 @@ const ItemSchema = new mongoose.Schema({
     },
     isBought: {
         type: Boolean,
-        default: false // New field for bought status
+        default: false
     },
     groupName: {
         type: String,
-        required: true // Added groupName to associate items with a group
+        required: true
+    },
+    score: {
+        type: Number,
+        default: 0 // שדה חדש לניקוד המלצות
     }
 });
 

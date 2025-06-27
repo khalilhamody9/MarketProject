@@ -7,7 +7,7 @@ const HistorySchema = new mongoose.Schema({
     category: { type: String, required: true },
     groupName: { type: String, required: true },
     username: { type: String, required: true },
-    quantity: { type: Number, required: false, default: 1 }, // ✅ שורה שהוספת עכשיו
+    quantity: { type: Number, required: false, default: 1 }, 
     date: { type: Date, default: Date.now }
 });
 

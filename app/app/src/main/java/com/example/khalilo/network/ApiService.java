@@ -148,5 +148,7 @@ public interface ApiService {
     @POST("items/increase-score")
     @FormUrlEncoded
     Call<Void> increaseRecommendationScore(@Field("itemName") String itemName);
+    @GET("ml/{username}")
+    Call<RecommendationResponse> getMLRecommendations(@Path("username") String username);
 
 }
