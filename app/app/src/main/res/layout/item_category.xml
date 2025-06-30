@@ -2,18 +2,32 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="16dp"
+
     android:gravity="center">
+    <androidx.cardview.widget.CardView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        app:cardCornerRadius="2dp"
+        app:cardElevation="0dp"
+        android:backgroundTint="@color/card_background"
+        android:background="@drawable/rounded_card_background">
 
     <ImageView
         android:id="@+id/categoryImage"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
         android:scaleType="centerCrop"
-        android:backgroundTint="@color/categoryKitchen"
+        android:backgroundTint="@color/card_background"
+        android:background="@drawable/rounded_card_background"
 
-        android:src="@drawable/ic_launcher_background"/>
+
+        android:src="@drawable/apple"/>
+    </androidx.cardview.widget.CardView>
 
     <TextView
         android:id="@+id/categoryName"

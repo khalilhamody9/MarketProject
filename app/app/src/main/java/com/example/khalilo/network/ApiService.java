@@ -16,8 +16,6 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
-import retrofit2.http.Field;
-import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
@@ -145,10 +143,13 @@ public interface ApiService {
 
     @DELETE("groups/{groupName}/favorites")
     Call<Void> removeFavoriteStore(@Path("groupName") String groupName, @Body Map<String, String> body);
-    @POST("items/increase-score")
-    @FormUrlEncoded
-    Call<Void> increaseRecommendationScore(@Field("itemName") String itemName);
+
     @GET("ml/{username}")
     Call<RecommendationResponse> getMLRecommendations(@Path("username") String username);
 
+    @POST("items/increase-score")
+    Call<Void> increaseRecommendationScore(@Body Map<String, String> body);
+
+    @POST("items/decrease-score")
+    Call<Void> decreaseRecommendationScore(@Body Map<String, String> body);
 }

@@ -23,7 +23,9 @@ import com.example.khalilo.models.History;
 import com.example.khalilo.network.ApiService;
 import com.example.khalilo.network.RetrofitClient;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -36,6 +38,7 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Su
     private ItemAdapter itemAdapter;
     private List<Item> itemList;
     private ApiService apiService;
+    private Map<History, Boolean> handledMap = new HashMap<>();
 
     public SuggestionAdapter(List<History> suggestionList, Context context, ItemAdapter itemAdapter, List<Item> itemList) {
         this.suggestionList = suggestionList;
@@ -43,6 +46,10 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Su
         this.itemAdapter = itemAdapter;
         this.itemList = itemList;
         this.apiService = RetrofitClient.getRetrofitInstance().create(ApiService.class);
+
+        for (History h : suggestionList) {
+            handledMap.put(h, false);
+        }
     }
 
     @NonNull
@@ -57,83 +64,36 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Su
         History history = suggestionList.get(position);
         holder.itemName.setText(history.getItemName());
         holder.itemInfo.setText("Last bought: " + history.getDate());
+        holder.itemScore.setText("Score: " + String.format("%.3f", history.getScore()));
 
-        // Try to display image if available
-        if (history.getImageUrl() != null && history.getImageUrl().startsWith("data:image")) {
-            try {
-                String base64Image = history.getImageUrl().split(",")[1];
-                byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
-                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                holder.itemImage.setImageBitmap(decodedByte);
-            } catch (Exception e) {
-                holder.itemImage.setImageResource(R.drawable.no_img);
-            }
-        } else if (history.getImageUrl() != null && !history.getImageUrl().isEmpty()) {
-            Glide.with(context)
-                    .load(history.getImageUrl())
-                    .placeholder(R.drawable.no_img)
-                    .error(R.drawable.no_img)
-                    .into(holder.itemImage);
-        } else {
-            fetchImageForItem(history, holder);
-        }
+        loadImage(holder.itemImage, history);
 
         holder.btnApprove.setOnClickListener(v -> {
+            handledMap.put(history, true);
             for (Item i : itemList) {
                 if (i.getName().equalsIgnoreCase(history.getItemName())) {
                     itemAdapter.increaseItem(i);
                     Toast.makeText(context, i.getName() + " added", Toast.LENGTH_SHORT).show();
                     holder.itemView.setVisibility(View.GONE);
-
-                    Call<Void> scoreCall = apiService.increaseRecommendationScore(history.getItemName());
-                    scoreCall.enqueue(new Callback<Void>() {
-                        @Override
-                        public void onResponse(Call<Void> call, Response<Void> response) {
-                            if (!response.isSuccessful()) {
-                                Log.w("ScoreUpdate", "Failed to update score for " + history.getItemName());
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Call<Void> call, Throwable t) {
-                            Log.e("ScoreUpdate", "Error updating score", t);
-                        }
-                    });
-
+                    increaseScore(history.getItemName());
                     return;
                 }
             }
 
-            // If item not found locally, fetch from server and mark as selected
+            // אם לא קיים - נחפש מהשרת ונוסיף
             apiService.searchItems(history.getItemName()).enqueue(new Callback<List<Item>>() {
                 @Override
                 public void onResponse(Call<List<Item>> call, Response<List<Item>> response) {
                     if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
                         Item fetched = response.body().get(0);
-
-                        fetched.setBought(true); // ✅ Mark as selected
+                        fetched.setBought(true);
                         itemList.add(fetched);
-                        itemAdapter.increaseItem(fetched); // ✅ Increase count
+                        itemAdapter.increaseItem(fetched);
                         itemAdapter.notifyDataSetChanged();
 
                         Toast.makeText(context, fetched.getName() + " added", Toast.LENGTH_SHORT).show();
                         holder.itemView.setVisibility(View.GONE);
-
-                        // ✅ עדכון ניקוד לאחר אישור המלצה
-                        Call<Void> scoreCall = apiService.increaseRecommendationScore(history.getItemName());
-                        scoreCall.enqueue(new Callback<Void>() {
-                            @Override
-                            public void onResponse(Call<Void> call, Response<Void> response) {
-                                if (!response.isSuccessful()) {
-                                    Log.w("ScoreUpdate", "Failed to update score for " + history.getItemName());
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(Call<Void> call, Throwable t) {
-                                Log.e("ScoreUpdate", "Error updating score", t);
-                            }
-                        });
+                        increaseScore(history.getItemName());
                     }
                 }
 
@@ -145,47 +105,65 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Su
         });
 
         holder.btnDeny.setOnClickListener(v -> {
+            handledMap.put(history, true);
             Toast.makeText(context, history.getItemName() + " denied", Toast.LENGTH_SHORT).show();
             holder.itemView.setVisibility(View.GONE);
+            decreaseScore(history.getItemName());
         });
     }
 
-    private void fetchImageForItem(History history, SuggestionViewHolder holder) {
-        apiService.searchItems(history.getItemName()).enqueue(new Callback<List<Item>>() {
-            @Override
-            public void onResponse(Call<List<Item>> call, Response<List<Item>> response) {
-                if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
-                    Item item = response.body().get(0);
-                    String imageUrl = item.getImg();
-                    history.setImageUrl(imageUrl); // update the local object
+    private void loadImage(ImageView imageView, History history) {
+        String imageUrl = history.getImageUrl();
 
-                    if (imageUrl != null && imageUrl.startsWith("data:image")) {
-                        try {
-                            String base64Image = imageUrl.split(",")[1];
-                            byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
-                            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                            holder.itemImage.setImageBitmap(decodedByte);
-                        } catch (Exception e) {
-                            holder.itemImage.setImageResource(R.drawable.no_img);
-                        }
-                    } else if (imageUrl != null && !imageUrl.isEmpty()) {
-                        Glide.with(context)
-                                .load(imageUrl)
-                                .placeholder(R.drawable.no_img)
-                                .error(R.drawable.no_img)
-                                .into(holder.itemImage);
-                    } else {
-                        holder.itemImage.setImageResource(R.drawable.no_img);
-                    }
-                } else {
-                    holder.itemImage.setImageResource(R.drawable.no_img);
-                }
+        if (imageUrl != null && imageUrl.startsWith("data:image")) {
+            try {
+                String base64Image = imageUrl.split(",")[1];
+                byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
+                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                imageView.setImageBitmap(decodedByte);
+            } catch (Exception e) {
+                imageView.setImageResource(R.drawable.no_img);
+            }
+        } else if (imageUrl != null && !imageUrl.isEmpty()) {
+            Glide.with(context)
+                    .load(imageUrl)
+                    .placeholder(R.drawable.no_img)
+                    .error(R.drawable.no_img)
+                    .into(imageView);
+        } else {
+            imageView.setImageResource(R.drawable.no_img);
+        }
+    }
+
+    private void increaseScore(String itemName) {
+        Log.d("ScoreUpdate", "📤 Sending increase score for: " + itemName);
+        Map<String, String> body = new HashMap<>();
+        body.put("itemName", itemName);
+        apiService.increaseRecommendationScore(body).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                Log.d("ScoreUpdate", "✅ Response for increase: " + response.code());
             }
 
             @Override
-            public void onFailure(Call<List<Item>> call, Throwable t) {
-                Log.e("SuggestionAdapter", "Failed to fetch image: " + t.getMessage());
-                holder.itemImage.setImageResource(R.drawable.no_img);
+            public void onFailure(Call<Void> call, Throwable t) {
+                Log.e("ScoreUpdate", "❌ Failed to increase score", t);
+            }
+        });
+    }
+
+    private void decreaseScore(String itemName) {
+        Map<String, String> body = new HashMap<>();
+        body.put("itemName", itemName);
+        apiService.decreaseRecommendationScore(body).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                Log.d("ScoreUpdate", "Decreased score for: " + itemName);
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Log.e("ScoreUpdate", "Failed to decrease score for: " + itemName, t);
             }
         });
     }
@@ -195,8 +173,12 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Su
         return suggestionList.size();
     }
 
+    public Map<History, Boolean> getHandledMap() {
+        return handledMap;
+    }
+
     public static class SuggestionViewHolder extends RecyclerView.ViewHolder {
-        TextView itemName, itemInfo;
+        TextView itemName, itemInfo, itemScore;
         Button btnApprove, btnDeny;
         ImageView itemImage;
 
@@ -204,6 +186,7 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Su
             super(itemView);
             itemName = itemView.findViewById(R.id.suggestedItemName);
             itemInfo = itemView.findViewById(R.id.suggestedItemInfo);
+            itemScore = itemView.findViewById(R.id.suggestedItemScore);
             btnApprove = itemView.findViewById(R.id.btnApprove);
             btnDeny = itemView.findViewById(R.id.btnDeny);
             itemImage = itemView.findViewById(R.id.suggestedItemImage);

@@ -6,68 +6,39 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Login"
-    android:background="@color/background_color">
+    android:background="@color/white"
+    android:fitsSystemWindows="true"
+
+    >
 
     <!-- Background Basket Image -->
     <ImageView
         android:id="@+id/backgroundBasket"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:src="@drawable/basket_img"
         android:scaleType="centerCrop"
-        android:alpha="0.07"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- Background Apple -->
-    <ImageView
-        android:id="@+id/appleBg"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:src="@drawable/apple"
-        android:alpha="0.12"
-        android:scaleType="fitCenter"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="48dp"
-        android:layout_marginStart="32dp" />
-
-    <!-- Background Banana -->
-
-    <!-- Login Card -->
-    <ImageView
-        android:id="@+id/bananaBg"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_marginTop="76dp"
-        android:layout_marginEnd="172dp"
-        android:alpha="0.12"
-        android:scaleType="fitCenter"
-        android:src="@drawable/banana"
+        android:src="@drawable/authheader_image"
         app:layout_constraintEnd_toEndOf="parent"
+
+        app:layout_constraintHeight_percent="0.4"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.cardview.widget.CardView
+
+    <LinearLayout
+        android:orientation="vertical"
         android:id="@+id/cardView"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:gravity="center_horizontal"
         android:layout_margin="24dp"
-        app:cardCornerRadius="24dp"
-        app:cardElevation="8dp"
         android:backgroundTint="@color/cardBackground"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="24dp"
-            android:gravity="center_horizontal">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/backgroundBasket">
+
 
             <!-- Header text -->
             <TextView
@@ -83,17 +54,17 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
                 android:text="Please log in to continue"
                 android:textColor="@color/categoryBathroom"
-                android:textSize="14sp"
-                android:layout_marginBottom="24dp" />
+                android:textSize="14sp" />
 
             <!-- Username Field -->
             <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Username"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                android:hint="Username">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/editTextText"
@@ -101,16 +72,16 @@
                     android:layout_height="wrap_content"
                     android:inputType="text"
                     android:textColor="@color/primary_text"
-                    android:textColorHint="@color/secondary_text"/>
+                    android:textColorHint="@color/secondary_text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Password Field -->
             <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Password"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_marginTop="16dp">
+                android:layout_marginTop="16dp"
+                android:hint="Password">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/editTextTextPassword"
@@ -118,7 +89,7 @@
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
                     android:textColor="@color/primary_text"
-                    android:textColorHint="@color/secondary_text"/>
+                    android:textColorHint="@color/secondary_text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Login Button -->
@@ -126,33 +97,29 @@
                 android:id="@+id/btnLogin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Login"
-                android:backgroundTint="@color/categoryBathroom"
-                android:textColor="@color/buttonTextDark"
                 android:layout_marginTop="24dp"
+                android:backgroundTint="@color/categoryBathroom"
                 android:fontFamily="sans-serif-medium"
-                android:textAllCaps="false" />
+                android:text="@string/login"
+                android:textAllCaps="false"
+
+                android:textColor="@color/white" />
 
             <!-- Divider -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/secondary_text"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="20dp" />
+
 
             <!-- Sign Up Button -->
             <Button
                 android:id="@+id/btnSignup"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Don't have an account? Sign Up"
                 android:layout_gravity="center"
                 android:background="@android:color/transparent"
-                android:textColor="@color/categoryBathroom"
+                android:fontFamily="sans-serif-medium"
+                android:text="@string/don_t_have_an_account_sign_up"
                 android:textAllCaps="false"
-                android:fontFamily="sans-serif-medium"/>
+                android:textColor="@color/categoryBathroom" />
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

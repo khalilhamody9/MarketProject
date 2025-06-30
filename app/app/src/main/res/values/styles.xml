@@ -8,6 +8,10 @@
         <item name="android:textSize">14sp</item>
     </style>
     <style name="Theme.YourApp" parent="Theme.Material3.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/primary_color</item>
+
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowTranslucentStatus">true</item>
         <item name="colorPrimary">@color/md_primary</item>
         <item name="colorOnPrimary">@color/md_on_primary</item>
         <item name="colorPrimaryContainer">@color/md_primary_container</item>
@@ -40,6 +44,15 @@
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">12dp</item>
     </style>
+    <style name="Theme.YourApp.FullScreen" parent="Theme.YourApp">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:statusBarColor">@color/categoryBathroom</item>
+        <item name="android:windowTranslucentStatus">true</item>
+
+        <!-- Important: Retain material elevation overlay for surfaces -->
+        <item name="materialThemeOverlay">@style/ThemeOverlay.Material3.MaterialAlertDialog</item>
+    </style>
+
 
     <style name="roundedButton" parent="Widget.Material3.Button.TextButton">
         <item name="android:background">@drawable/apple</item>

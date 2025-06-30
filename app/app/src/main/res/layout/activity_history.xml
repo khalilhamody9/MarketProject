@@ -4,13 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Background Image -->
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:src="@drawable/basket_img"
-        android:scaleType="centerCrop"
-        android:alpha="0.1" />
+
 
     <!-- Foreground Content -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -26,7 +20,7 @@
             android:layout_height="wrap_content"
             android:background="?android:attr/selectableItemBackground"
             android:contentDescription="Back"
-            android:src="@drawable/ic_arrow_back"
+            android:src="@drawable/ic_back"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             android:layout_marginStart="16dp"
@@ -38,16 +32,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="32dp"
             android:gravity="center"
             android:text="History"
-            android:textColor="@color/categoryBathroom"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.36"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+
+            app:layout_constraintBottom_toBottomOf="@+id/buttonBackHistory"
             app:layout_constraintStart_toEndOf="@id/buttonBackHistory"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@+id/buttonBackHistory" />
 
         <!-- Sort Spinner -->
         <Spinner
@@ -66,6 +58,7 @@
             android:id="@+id/recyclerViewHistory"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            tools:listitem="@layout/item_history"
             app:layout_constraintTop_toBottomOf="@id/historyTitle"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"

@@ -2,23 +2,23 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_margin="8dp"
-    android:background="@android:color/white"
-    android:elevation="4dp"
-    android:radius="16dp">
+    app:cardCornerRadius="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/card_background"
         android:orientation="vertical"
-        android:padding="12dp">
+        android:padding="20dp">
 
         <!-- Shop name -->
         <TextView
             android:id="@+id/shopName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="שם החנות"
+            android:text="Header"
             android:textStyle="bold"
             android:textSize="18sp"
             android:textColor="@android:color/black" />
@@ -28,7 +28,7 @@
             android:id="@+id/shopTotalPrice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="מחיר כולל: ₪0.00"
+            android:text="subhead"
             android:textSize="16sp"
             android:textColor="@android:color/black"
             android:layout_marginTop="4dp" />

@@ -16,8 +16,7 @@ public class Item implements Serializable {
     private String category;
     private boolean isBought;
     private String actionUser;
-    private String barcode; // 🔹 שדה חדש לברקוד
-
+    private String barcode;
     private static final long serialVersionUID = 1L;
 
     public Item(String name, String img, String category, String barcode) {

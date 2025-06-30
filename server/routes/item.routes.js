@@ -23,13 +23,16 @@ router.get('/finalized-popular/:groupName', itemController.getPopularFinalizedIt
 // Recommendations
 router.get('/recommendations/:groupName', itemController.getRecommendations);
 router.get('/recommendations-smart/:username', itemController.getSmartRecommendations);
+router.get('/recommendations-unified/:username', itemController.getUnifiedRecommendations);
+
+// ✅ Add/Decrease Score
 router.post('/increase-score', itemController.increaseRecommendationScore);
+router.post('/decrease-score', itemController.decreaseRecommendationScore);  // ← זה מה שחסר
 
 // Get items from file (full or paginated)
 router.get('/from-file', itemController.getItemsFromFile);
 router.get('/from-file-paginated', itemController.getPaginatedItemsFromFile);
 router.get('/products', itemController.getPaginatedItemsFromFile);
 router.get('/search', itemController.searchItems);
-router.get('/recommendations-unified/:username', itemController.getUnifiedRecommendations);
 
 module.exports = router;

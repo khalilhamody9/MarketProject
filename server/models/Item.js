@@ -17,10 +17,8 @@ const ItemSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    groupName: {
-        type: String,
-        required: true
-    },
+    barcode: { type: Number },  // <-- הוספת שדה ברקוד
+
     score: {
         type: Number,
         default: 0 // שדה חדש לניקוד המלצות

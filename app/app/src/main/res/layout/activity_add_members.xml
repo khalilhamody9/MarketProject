@@ -3,12 +3,7 @@
     android:layout_height="match_parent">
 
     <!-- Background Image -->
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:src="@drawable/basket_img"
-        android:scaleType="centerCrop"
-        android:alpha="0.1" />
+
 
     <!-- Main Content -->
     <LinearLayout
@@ -17,48 +12,62 @@
         android:orientation="vertical"
         android:padding="24dp">
 
+
+
         <ImageButton
             android:id="@+id/buttonBackCheckGroup"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@android:drawable/ic_menu_revert"
+            android:src="@drawable/ic_back"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Back"
             android:layout_gravity="start"
             android:layout_marginBottom="24dp" />
+        <ImageView
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/member_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
 
+        </ImageView>
         <TextView
+            android:layout_marginTop="12dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Add a Member"
             android:textSize="20sp"
             android:textStyle="bold"
             android:gravity="center"
-            android:textColor="@color/categoryGroceries"
+            android:textColor="@color/categoryBathroom"
             android:layout_marginBottom="24dp" />
 
-        <EditText
-            android:id="@+id/inputMemberName"
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter member name"
-            android:background="@drawable/edittext_background"
-            android:padding="14dp"
-            android:textColor="#000000"
-            android:textSize="16sp"
-            android:layout_marginBottom="20dp" />
+            android:hint="@string/enter_member_name">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputMemberName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:textColor="@color/primary_text"
+                android:textColorHint="@color/secondary_text" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <Button
             android:id="@+id/btnAddMember"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Add Member"
+            android:text="@string/add_member"
+
             android:textAllCaps="false"
             android:textSize="16sp"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="#4CAF50"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/categoryBathroom"
             android:padding="14dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="40dp"
             android:layout_marginBottom="10dp"
             android:elevation="2dp" />
 

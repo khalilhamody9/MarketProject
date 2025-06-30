@@ -2,11 +2,15 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_margin="8dp"
     android:padding="8dp"
-    android:background="@color/white"
-    android:elevation="4dp"
-    android:radius="16dp">
+
+
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="@color/card_background"
+    app:cardCornerRadius="12dp"
+    >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,9 +25,10 @@
             android:layout_height="80dp"
             android:layout_gravity="center"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_launcher_background"
-            android:background="@drawable/item_image_bg"
-            android:padding="8dp" />
+            android:background="@color/ligh_button_color"
+
+
+            android:layout_margin="8dp" />
 
         <!-- Item Details -->
         <FrameLayout
@@ -49,27 +54,34 @@
 
                 <!-- Quantity Layout -->
                 <LinearLayout
+
+                    android:padding="4dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
+                    android:background="@drawable/counter_background"
                     android:layout_marginTop="8dp">
 
                     <ImageButton
                         android:id="@+id/btnDecrease"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
-                        android:background="@drawable/circle_button"
+                        android:background="@drawable/button_background"
                         android:src="@drawable/ic_minus"
+                        app:tint="@color/white"
                         android:contentDescription="Decrease" />
 
                     <TextView
                         android:id="@+id/itemQuantity"
                         android:layout_width="wrap_content"
+                        android:gravity="center"
+                        android:minWidth="48dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:layout_marginEnd="8dp"
                         android:text="1"
+                        android:maxLength="3"
                         android:textColor="@color/secondary_text"
                         android:textSize="18sp" />
 
@@ -77,7 +89,7 @@
                         android:id="@+id/btnIncrease"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
-                        android:background="@drawable/circle_button"
+                        android:background="@drawable/button_background"
                         android:src="@drawable/ic_add"
                         android:contentDescription="Increase" />
                 </LinearLayout>
@@ -89,7 +101,9 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_gravity="top|end"
-                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                app:tint="@color/categoryBathroom"
+
+                android:src="@drawable/cross_ic"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Delete Item"
                 android:layout_margin="4dp"/>

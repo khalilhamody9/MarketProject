@@ -5,27 +5,46 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-  <!-- Toggle view button (favorite / all) -->
+  <!-- Back Button -->
   <ImageButton
+      android:id="@+id/buttonBackPopular"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:src="@drawable/ic_back"
+      android:layout_marginTop="12dp"
+      android:layout_marginStart="8dp"
+      android:background="@android:color/transparent"
+      android:contentDescription="Back"
+      android:layout_marginBottom="12dp" />
+
+  <TextView
+      android:text="@string/compare_prices"
+      android:layout_marginTop="12dp"
+      android:layout_marginStart="48dp"
+      android:textSize="18sp"
+      android:fontFamily="sans-serif-medium"
+      android:layout_gravity="top|start"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content" />
+
+  <Button
       android:id="@+id/toggleViewMode"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:src="@drawable/ic_add"
-      android:contentDescription="הצג את כל החנויות"
-      android:background="?attr/selectableItemBackgroundBorderless"
-      android:layout_margin="19dp"
-      android:layout_gravity="top|end" />
-
-  <!-- Background Image -->
-  <ImageView
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:src="@drawable/basket_img"
-      android:scaleType="centerCrop"
-      android:alpha="0.1" />
+      android:layout_gravity="top|end"
+      android:layout_marginTop="8dp"
+      android:layout_marginEnd="12dp"
+      android:paddingTop="12dp"
+      android:paddingBottom="12dp"
+      android:backgroundTint="@color/categoryBathroom"
+      android:fontFamily="sans-serif-medium"
+      android:text="@string/next"
+      android:textAllCaps="false"
+      android:textColor="@color/white" />
 
   <!-- Foreground Content -->
   <androidx.constraintlayout.widget.ConstraintLayout
+      android:layout_marginTop="72dp"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:background="@android:color/transparent"
@@ -37,9 +56,8 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:clipToPadding="false"
-        android:padding="4dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/buttonDone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         tools:listitem="@layout/item_shop" />
@@ -57,6 +75,21 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/buttonDone"
+        android:layout_width="0dp"
+        android:layout_height="52dp"
+        android:text="Done"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:fontFamily="sans-serif-medium"
+        android:layout_margin="16dp"
+        android:backgroundTint="@color/categoryBathroom"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
   </androidx.constraintlayout.widget.ConstraintLayout>
 
   <ProgressBar
@@ -66,5 +99,4 @@
       android:layout_gravity="center"
       android:visibility="gone"
       android:layout_marginTop="16dp" />
-
 </FrameLayout>

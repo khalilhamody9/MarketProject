@@ -1,15 +1,10 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Background Image -->
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:src="@drawable/basket_img"
-        android:scaleType="centerCrop"
-        android:alpha="0.1" />
+
 
     <!-- Foreground Content -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -25,48 +20,61 @@
             android:layout_height="wrap_content"
             android:background="?android:attr/selectableItemBackground"
             android:contentDescription="Back"
-            android:src="@drawable/ic_arrow_back"
+            android:src="@drawable/ic_back"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp" />
 
         <!-- Members Title -->
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/group_create_icon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/buttonBackMembers">
+
+        </ImageView>
+
+        <!-- Members List -->
         <TextView
             android:id="@+id/membersTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Group Members"
+            android:layout_marginStart="16dp"
+            android:gravity="center"
+            android:text="@string/group_members"
+            android:textColor="@color/categoryBathroom"
             android:textSize="24sp"
             android:textStyle="bold"
-            android:textColor="@color/categoryBathroom"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toEndOf="@id/buttonBackMembers"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="20dp"
-            android:gravity="center" />
+            app:layout_constraintHorizontal_bias="0.55"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
-        <!-- Members List -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewMembers"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            app:layout_constraintTop_toBottomOf="@id/membersTitle"
-            app:layout_constraintBottom_toTopOf="@id/buttonFinish"
-            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="16dp"
+            tools:itemCount="4"
+            tools:listitem="@layout/item_member"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="16dp" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/membersTitle" />
 
         <!-- Floating Button -->
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
+        <ImageView
             android:id="@+id/buttonFinish"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:contentDescription="Finish"
-            android:src="@drawable/ic_add"
-            app:backgroundTint="@color/secondary_text"
+            android:contentDescription="Add"
+            android:src="@drawable/fab_button"
             app:elevation="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

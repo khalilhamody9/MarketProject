@@ -5,18 +5,81 @@ const { spawn } = require("child_process");
 const Group = require('../models/Group');
 const fs = require('fs');
 const path = require('path');
+const LAST_TRAINING_FILE = path.join(__dirname, "last_training.txt");
+
+async function maybeTrainModel() {
+    const now = Date.now();
+    const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000; // יומיים במילישניות
+
+    let lastTrained = 0;
+
+    if (fs.existsSync(LAST_TRAINING_FILE)) {
+        try {
+            const content = fs.readFileSync(LAST_TRAINING_FILE, "utf8");
+            lastTrained = parseInt(content.trim());
+        } catch (err) {
+            console.error("⚠️ קריאת תאריך אימון נכשלה:", err);
+        }
+    }
+
+    if (now - lastTrained < TWO_DAYS_MS) {
+        console.log("⏱️ עדיין לא עברו יומיים – מדלג על אימון");
+        return;
+    }
+
+    console.log("🚀 מריץ אימון מחדש...");
+    const condaPath = "C:\\Users\\khali\\miniconda3\\Scripts\\conda.exe";
+    const py = spawn(condaPath, [
+        "run", "--no-capture-output", "-n", "recsys", "python", "ml/train_model.py"
+    ], { env: { ...process.env, PYTHONIOENCODING: "utf-8" } });
+
+    py.stdout.on("data", data => console.log("ML Train:", data.toString()));
+    py.stderr.on("data", data => console.error("ML Train Error:", data.toString()));
+    py.on("close", (code) => {
+        if (code === 0) {
+            console.log("✅ Model training finished");
+            fs.writeFileSync(LAST_TRAINING_FILE, now.toString(), "utf8");
+        } else {
+            console.error("❌ Model training failed with code", code);
+        }
+    });
+}
+
+
 async function increaseRecommendationScore(req, res) {
+    const { itemName } = req.body;
+    try {
+        console.log("Increasing score for itemName:", itemName);
+        const item = await Item.findOne({ name: itemName });
+        if (!item) {
+            console.log("Item not found!");
+            return res.status(404).json({ message: "Item not found" });
+        }
+        console.log("Current score:", item.score);
+        item.score = (item.score || 0) + 1;
+        await item.save();
+        console.log("Updated score:", item.score);
+
+        res.status(200).json({ message: "Score updated", score: item.score });
+    } catch (err) {
+        console.error("Failed to update score:", err);
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+}
+
+async function decreaseRecommendationScore(req, res) {
     const { itemName } = req.body;
     try {
         const item = await Item.findOne({ name: itemName });
         if (!item) return res.status(404).json({ message: "Item not found" });
 
-        item.score = (item.score || 0) + 1;
+        item.score = (item.score || 0) - 1;  // מנכה ניקוד (תוכל לשנות את הכמות)
+        if (item.score < 0) item.score = 0;  // לא יורד מתחת ל-0
         await item.save();
 
-        res.status(200).json({ message: "Score updated", score: item.score });
+        res.status(200).json({ message: "Score decreased", score: item.score });
     } catch (err) {
-        console.error("Failed to update score:", err);
+        console.error("Failed to decrease score:", err);
         res.status(500).json({ message: "Server error", error: err.message });
     }
 }
@@ -204,6 +267,8 @@ async function searchItems(req, res) {
     });
 }
 
+
+
 async function loadDataIfEmpty() {
     try {
         const count = await Item.countDocuments();
@@ -211,15 +276,49 @@ async function loadDataIfEmpty() {
             const filePath = path.join(__dirname, "../data/data.json");
             const rawData = fs.readFileSync(filePath, "utf8");
             const items = JSON.parse(rawData);
-            await Item.insertMany(items);
+
+            const itemsWithDefaults = items.map(item => ({
+                name: item.name,
+                category: item.category || "Unknown",
+                imageUrl: (item.img && item.img.trim() !== "") ? item.img : "https://example.com/no-image.png",
+                isBought: false,
+                score: 0
+            }));
+
+
+            await Item.insertMany(itemsWithDefaults);
             console.log("✅ data.json loaded into MongoDB");
         } else {
             console.log("ℹ️ Items already exist in database, skipping load");
         }
     } catch (err) {
-        console.error("שגיאה בקריאת קובץ:", err);
+        console.error("שגיאה בקריאת קובץ או בהכנסת נתונים:", err);
     }
 }
+async function loadDataWithBarcode() {
+    try {
+        const filePath = path.join(__dirname, "../data/data.json");
+        const rawData = fs.readFileSync(filePath, "utf8");
+        const items = JSON.parse(rawData);
+
+        const itemsWithDefaults = items.map(item => ({
+            name: item.name,
+            category: item.category || "Unknown",
+            imageUrl: (item.img && item.img.trim() !== "") ? item.img : "https://example.com/no-image.png",
+            isBought: false,
+            score: 0,
+            barcode: item.barcode || null  // מוסיף את הברקוד
+        }));
+
+        await Item.deleteMany({});   // מוחק קודם את כל המוצרים
+        await Item.insertMany(itemsWithDefaults);
+        console.log("✅ data.json loaded into MongoDB with barcode");
+    } catch (err) {
+        console.error("שגיאה בטעינת הנתונים עם ברקוד:", err);
+    }
+}
+
+
 
 function getItemsFromFile(req, res) {
     const filePath = path.join(__dirname, '../data/Data.json');
@@ -299,11 +398,10 @@ async function getHistory(req, res) {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 }
-
 async function addHistory(req, res) {
     try {
         const {
-            itemName, action, price, category, imageUrl,
+            itemName, action, price, category, imageUrl, barcode,
             groupName, username, quantity
         } = req.body;
 
@@ -312,6 +410,7 @@ async function addHistory(req, res) {
         const newHistory = new History({
             itemName,
             action,
+            barcode,
             price,
             category,
             imageUrl,
@@ -322,22 +421,7 @@ async function addHistory(req, res) {
         });
 
         await newHistory.save();
-
-        // 🚀 הפעלת אימון מודל דרך conda
-const { spawn } = require("child_process");
-const condaPath = "C:\\Users\\khali\\miniconda3\\Scripts\\conda.exe";
-const py = spawn(condaPath, [
-  "run", "--no-capture-output", "-n", "recsys", "python", "ml/train_model.py"
-], { env: { ...process.env, PYTHONIOENCODING: "utf-8" } });
-        py.stdout.on("data", data => console.log("ML Train:", data.toString()));
-        py.stderr.on("data", data => console.error("ML Train Error:", data.toString()));
-        py.on("close", (code) => {
-            if (code === 0) {
-                console.log("✅ Model training finished");
-            } else {
-                console.error("❌ Model training failed with code", code);
-            }
-        });
+        await maybeTrainModel();
 
         res.status(201).json({ message: 'History entry added successfully' });
 
@@ -452,6 +536,7 @@ async function getRecommendations(req, res) {
 }
 module.exports = {
     loadDataIfEmpty,
+    loadDataWithBarcode,  // הוסף את זה!
     getItemsFromFile,
     getRecommendations,
     getPaginatedItemsFromFile,
@@ -465,6 +550,7 @@ module.exports = {
     getPopularItems,
     getPopularFinalizedItems,
     searchItems,
-    increaseRecommendationScore ,
-    getUnifiedRecommendations
+    increaseRecommendationScore,
+    getUnifiedRecommendations,
+    decreaseRecommendationScore
 };

@@ -1,13 +1,14 @@
 package com.example.khalilo.ui;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageButton;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,6 +53,7 @@ public class ComparePricesActivity extends AppCompatActivity {
     private ProgressBar loadingSpinner;
     private boolean showOnlyFavorites = true;
 
+    Button buttonDone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,11 +69,22 @@ public class ComparePricesActivity extends AppCompatActivity {
         shopRecyclerView = findViewById(R.id.recyclerViewShops);
         shopRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        ImageButton toggleViewMode = findViewById(R.id.toggleViewMode);
+        Button toggleViewMode = findViewById(R.id.toggleViewMode);
         toggleViewMode.setOnClickListener(v -> {
             showOnlyFavorites = !showOnlyFavorites;
             fetchLastScrape();
         });
+        buttonDone = findViewById(R.id.buttonDone);
+
+        buttonDone.setOnClickListener(v -> {
+            Intent intent = new Intent(ComparePricesActivity.this, GroupDetailsActivity.class);
+            intent.putExtra("username", username);
+            intent.putExtra("groupName", groupName);
+           // intent.putExtra("selectedItems", selectedItems); // אם זה Serializable
+            startActivity(intent);
+            finish();
+        });
+        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.categoryBathroom));
 
         requestLocationPermissionAndFetch();
     }

@@ -1,15 +1,10 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Background Image -->
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:src="@drawable/basket_img"
-        android:scaleType="centerCrop"
-        android:alpha="0.1" />
+
 
     <!-- Foreground UI -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -25,11 +20,24 @@
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Back to Store"
-            android:src="@drawable/ic_arrow_back"
+            android:src="@drawable/ic_back"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             android:clickable="true"
             android:focusable="true" />
+        <TextView
+            android:id="@+id/historyTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:gravity="center"
+            android:text="@string/store_item"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+
+            app:layout_constraintBottom_toBottomOf="@+id/buttonBackToStore"
+            app:layout_constraintStart_toEndOf="@id/buttonBackToStore"
+            app:layout_constraintTop_toTopOf="@+id/buttonBackToStore" />
 
         <!-- RecyclerView -->
         <androidx.recyclerview.widget.RecyclerView
@@ -40,18 +48,24 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginTop="16dp" />
+            android:layout_marginTop="16dp"
+            tools:itemCount="3"
+            tools:listitem="@layout/item_selected"
+            />
 
-        <!-- Floating Finish Button -->
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
+        <TextView
             android:id="@+id/buttonFinish"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:contentDescription="Finish"
-            android:src="@drawable/ic_add"
-            app:backgroundTint="@color/secondary_text"
-            app:elevation="8dp"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:gravity="center"
+            android:background="@drawable/rounded_edges_button"
+            android:backgroundTint="@color/categoryBathroom"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/check_out"
+            android:paddingEnd="16dp"
+            android:paddingStart="16dp"
+            android:textSize="14sp"
+            android:textColor="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />

@@ -36,7 +36,7 @@ public class DeleteMemberActivity extends AppCompatActivity {
         groupName = getIntent().getStringExtra("groupName");
         adminName = getIntent().getStringExtra("username");
 
-        inputMemberName = findViewById(R.id.inputMemberName);
+        inputMemberName = findViewById(R.id.inputGroupName);  // ✔️ תואם ל-XML
         btnDeleteMember = findViewById(R.id.btnDeleteMember);
         buttonBackDeleteMember = findViewById(R.id.buttonBackDeleteMember);
 

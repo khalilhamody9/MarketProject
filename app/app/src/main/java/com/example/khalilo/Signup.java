@@ -3,9 +3,11 @@ package com.example.khalilo;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,7 +25,8 @@ import retrofit2.Response;
 
 public class Signup extends AppCompatActivity {
     EditText inputEmail, inputUsername, inputPassword, inputConfirmPassword;
-    Button btnSignup, btnLogin;
+    Button btnSignup;
+    TextView btnLogin;
     ImageButton ButtonBack;
 
     @SuppressLint("WrongViewCast")
@@ -40,7 +43,7 @@ public class Signup extends AppCompatActivity {
         ButtonBack=findViewById(R.id.buttonBack);
         ButtonBack.setOnClickListener(v->{
             Intent i = new Intent(this,Login.class);
-        startActivity(i);
+            startActivity(i);
         });
 
         // Navigate to Login Activity
@@ -50,7 +53,7 @@ public class Signup extends AppCompatActivity {
             finish();
         });
 
-        
+
 
         // Sign Up Logic
         btnSignup.setOnClickListener(v -> {
@@ -67,6 +70,12 @@ public class Signup extends AppCompatActivity {
                 registerUser(email, username, password);
             }
         });
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        );
     }
 
     private void registerUser(String email, String username, String password) {

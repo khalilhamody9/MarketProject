@@ -4,10 +4,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,7 +35,8 @@ public class SelectedItemsActivity extends AppCompatActivity {
     RecyclerView recyclerViewSelectedItems;
     SelectedItemsAdapter selectedItemsAdapter;
     HashMap<Item, Integer> selectedItems;
-    ImageButton buttonBackToStore, buttonFinish;
+    ImageButton buttonBackToStore;
+    TextView buttonFinish;
     private String username, groupName;
 
     @Override
@@ -58,7 +61,7 @@ public class SelectedItemsActivity extends AppCompatActivity {
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
         });
-
+        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.categoryBathroom));
         buttonFinish = findViewById(R.id.buttonFinish);
         buttonFinish.setOnClickListener(v -> showFinishConfirmation());
     }

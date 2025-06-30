@@ -4,10 +4,11 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 
 import com.example.khalilo.CheckGroup;
 import com.example.khalilo.R;
@@ -17,8 +18,8 @@ public class GroupDetailsActivity extends AppCompatActivity {
     private String username,adminName;
     private String groupName;
     ImageButton btnBack;
-    CardView btnAddMembers;
-    CardView btnDeleteMembers;
+    TextView btnAddMembers;
+    TextView btnDeleteMembers;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -55,7 +56,7 @@ public class GroupDetailsActivity extends AppCompatActivity {
             intent.putExtra("username", username);
             startActivity(intent);
         });
-        CardView btnFavoriteStores = findViewById(R.id.btnFavoriteStores);
+        LinearLayout btnFavoriteStores = findViewById(R.id.btnFavoriteStores);
         btnFavoriteStores.setOnClickListener(v -> {
             Intent intent = new Intent(GroupDetailsActivity.this, FavoriteStoresActivity.class);
             intent.putExtra("groupName", groupName);
@@ -81,10 +82,10 @@ public class GroupDetailsActivity extends AppCompatActivity {
         });
 
         // Find cards
-        CardView btnHistory = findViewById(R.id.btnHistory);
-        CardView btnStore = findViewById(R.id.btnStore);
-        CardView btnPopularItems = findViewById(R.id.btnPopularItems);
-        CardView btnMembers = findViewById(R.id.btnMembers);
+        LinearLayout btnHistory = findViewById(R.id.btnHistory);
+        LinearLayout btnStore = findViewById(R.id.btnStore);
+        LinearLayout btnPopularItems = findViewById(R.id.btnPopularItems);
+        LinearLayout btnMembers = findViewById(R.id.btnMembers);
 
         // Set up button actions
         btnHistory.setOnClickListener(v -> {
@@ -114,6 +115,7 @@ public class GroupDetailsActivity extends AppCompatActivity {
             intent.putExtra("groupName", groupName);
             startActivity(intent);
         });
+        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.categoryBathroom));
     }
     // Get and Display Selected Items for Group
 //    private void loadSelectedItems() {

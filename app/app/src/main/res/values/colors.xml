@@ -12,30 +12,31 @@
     <color name="white">#FFFFFF</color>
 
     <!-- Primary and Accent Colors -->
-    <color name="primary_color">#6200EE</color>
-    <color name="primary_light">#BB86FC</color>
-    <color name="primary_dark">#3700B3</color>
+    <color name="primary_color">#4C662B</color>
+    <color name="primary_light">#4C662B</color>
+    <color name="primary_dark">#4C662B</color>
     <color name="accent_color">#03DAC5</color>
     <color name="buttonYellow">#FFEB3B</color>
     <color name="buttonTextDark">#212121</color> <!-- Dark text for contrast -->
     <!-- Button Colors -->
-    <color name="button_color">#6200EE</color>
+    <color name="button_color">#4C662B</color>
     <color name="button_text">#FFFFFF</color>
-    <color name="link_text">#6200EE</color>
+    <color name="link_text">#4C662B</color>
         <!-- Primary and Accent Colors -->
-        <color name="primaryColor">#6200EE</color>
-        <color name="primaryLightColor">#BB86FC</color>
+        <color name="primaryColor">#4C662B</color>
+        <color name="primaryLightColor">#4C662B</color>
         <color name="primaryDarkColor">#3700B3</color> <!-- Add this line -->
         <color name="accentColor">#03DAC5</color>
         <color name="textColor">#FFFFFF</color>
 
         <!-- Category Button Colors -->
         <color name="categoryKitchen">#FF7043</color>
-        <color name="categoryBathroom">#42A5F5</color>
+        <color name="add_button_color">#386663</color>
+        <color name="categoryBathroom">#4C662B</color>
         <color name="categoryGroceries">#66BB6A</color>
-        <color name="categoryAll">#AB47BC</color>
+        <color name="categoryAll">#4C662B</color>
         <color name="buttonRed">#F44336</color> <!-- 🔴 Red Button -->
-        <color name="md_primary">#6750A4</color>
+        <color name="md_primary">#4C662B</color>
         <color name="md_on_primary">#FFFFFF</color>
         <color name="md_primary_container">#EADDFF</color>
         <color name="md_on_primary_container">#21005D</color>
@@ -70,5 +71,8 @@
 
 
     <color name="error_color">#D32F2F</color>
+    <color name="ligh_button_color">#DCE7C8</color>
+    <color name="card_background">#99F3F4E9</color>
+    <color name="black">#000000</color>
 </resources>
 

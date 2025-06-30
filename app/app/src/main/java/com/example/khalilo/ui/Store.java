@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
@@ -15,6 +17,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,6 +33,7 @@ import com.example.khalilo.network.RetrofitClient;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -41,7 +45,8 @@ public class Store extends AppCompatActivity implements ItemAdapter.OnItemDelete
     RecyclerView recyclerView;
     ItemAdapter adapter;
     TextView userInfo;
-    ImageButton buttonFinish, BackButton;
+    ImageButton  BackButton;
+    Button buttonFinish;
     Spinner groupSelector;
     boolean hasUnsavedChanges = false;
 
@@ -147,6 +152,7 @@ public class Store extends AppCompatActivity implements ItemAdapter.OnItemDelete
         //setupCategoryButtons();
         //fetchRecommendations();      // המלצה חכמה מהשרת
         fetchMLRecommendations();    // המלצה מבוססת ML (מריץ predict_model.py)
+        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.categoryBathroom));
     }
 
     // This is the implementation of the delete listener method
@@ -321,10 +327,38 @@ public class Store extends AppCompatActivity implements ItemAdapter.OnItemDelete
         recyclerView.setLayoutManager(new LinearLayoutManager(Store.this));
         recyclerView.setAdapter(suggestionAdapter);
 
-        new AlertDialog.Builder(Store.this)
+        AlertDialog dialog = new AlertDialog.Builder(Store.this)
                 .setTitle("Suggested Items")
                 .setView(dialogView)
                 .setPositiveButton("Close", null)
-                .show();
+                .create();
+
+        dialog.setOnDismissListener(dialogInterface -> {
+            Map<History, Boolean> handledMap = suggestionAdapter.getHandledMap();
+            for (Map.Entry<History, Boolean> entry : handledMap.entrySet()) {
+                if (!entry.getValue()) { // לא טופל – נחשב כ־deny
+                    String itemName = entry.getKey().getItemName();
+                    Map<String, String> body = new HashMap<>();
+                    body.put("itemName", itemName);
+                    apiService.decreaseRecommendationScore(body).enqueue(new Callback<Void>() {
+                        @Override
+                        public void onResponse(Call<Void> call, Response<Void> response) {
+                            if (!response.isSuccessful()) {
+                                Log.w("ScoreUpdate", "Failed to decrease score for " + itemName);
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<Void> call, Throwable t) {
+                            Log.e("ScoreUpdate", "Error decreasing score", t);
+                        }
+                    });
+
+                }
+            }
+        });
+
+        dialog.show();
     }
+
 }

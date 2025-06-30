@@ -11,6 +11,15 @@ public class History {
     private String username;
     private String date;
     private  int quantity;
+    private Double score; // או double
+
+    public Double getScore() {
+        return score;
+    }
+
+    public void setScore(Double score) {
+        this.score = score;
+    }
 
     // Getters and Setters
     public int getQuantity() {

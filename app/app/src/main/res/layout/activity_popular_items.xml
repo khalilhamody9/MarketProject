@@ -1,14 +1,9 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools">
 
-  <!-- Background Image -->
-  <ImageView
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:src="@drawable/basket_img"
-      android:scaleType="centerCrop"
-      android:alpha="0.1" />
+
 
   <!-- Foreground Content -->
   <LinearLayout
@@ -23,17 +18,25 @@
         android:id="@+id/buttonBackPopular"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@android:drawable/ic_menu_revert"
+        android:src="@drawable/ic_back"
         android:background="@android:color/transparent"
         android:contentDescription="Back"
         android:layout_marginBottom="12dp" />
+    <ImageView
+        android:layout_gravity="center_horizontal"
+        android:src="@drawable/popular_item_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+    </ImageView>
 
     <!-- Title with updated text color -->
     <TextView
+        android:layout_marginTop="8dp"
         android:id="@+id/popularTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Top 5 Most Bought Items"
+        android:text="@string/top_5_most_bought_items"
         android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="@color/categoryBathroom"
@@ -41,10 +44,13 @@
         android:layout_marginBottom="16dp" />
 
     <androidx.recyclerview.widget.RecyclerView
+        android:layout_marginTop="8dp"
         android:id="@+id/popularRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        tools:itemCount="2"
+        tools:listitem="@layout/item_selected"
         android:clipToPadding="false"
         android:paddingBottom="8dp" />
   </LinearLayout>

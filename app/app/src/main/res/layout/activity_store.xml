@@ -1,14 +1,9 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools">
 
-  <!-- Background Image -->
-  <ImageView
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:src="@drawable/basket_img"
-      android:scaleType="centerCrop"
-      android:alpha="0.1" />
+
 
   <!-- Foreground UI -->
   <LinearLayout
@@ -30,7 +25,7 @@
           android:layout_width="40dp"
           android:layout_height="40dp"
           android:background="?attr/selectableItemBackgroundBorderless"
-          android:src="@drawable/ic_arrow_back"
+          android:src="@drawable/ic_back"
           android:contentDescription="Back" />
 
       <TextView
@@ -44,12 +39,17 @@
           android:textStyle="bold"
           android:textColor="@color/categoryBathroom" />
 
-      <ImageButton
+      <Button
           android:id="@+id/buttonFinish"
-          android:layout_width="40dp"
-          android:layout_height="40dp"
-          android:background="?attr/selectableItemBackgroundBorderless"
-          android:src="@drawable/finish"
+          android:layout_width="wrap_content"
+          android:layout_height="48dp"
+         android:backgroundTint="@color/categoryBathroom"
+          android:text="@string/next"
+          android:textColor="@color/white"
+          android:textAllCaps="false"
+          android:textSize="12sp"
+
+
           android:contentDescription="Finish" />
 
     </LinearLayout>
@@ -68,16 +68,17 @@
     <EditText
         android:id="@+id/searchBar"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:hint="חפש פריטים..."
-        android:drawableLeft="@android:drawable/ic_menu_search"
+        android:layout_height="56dp"
+        android:hint="@string/search"
+        android:drawableLeft="@drawable/ic_search"
         android:drawablePadding="8dp"
         android:padding="12dp"
-        android:background="@drawable/edittext_background"
+        android:backgroundTint="@color/card_background"
+        android:background="@drawable/rounded_edges_button"
         android:inputType="text"
-        android:gravity="right"
-        android:textDirection="rtl"
-        android:textColor="@color/categoryBathroom"
+
+
+        android:textColor="@color/black"
         android:textColorHint="@color/categoryBathroom"
         android:layout_marginBottom="12dp" />
 
@@ -97,18 +98,18 @@
           android:gravity="center_vertical">
 
         <!-- Category Buttons -->
-        <Button android:id="@+id/btnAll" android:layout_width="wrap_content" android:layout_height="40dp" android:text="All" android:textColor="@color/categoryBathroom" android:backgroundTint="#E0E0E0" android:drawableLeft="@drawable/ic_all" android:drawablePadding="8dp" android:layout_marginEnd="8dp" />
-        <Button android:id="@+id/btnCleaning" android:layout_width="wrap_content" android:layout_height="40dp" android:text="Cleaning" android:textColor="@color/categoryBathroom" android:backgroundTint="#E0E0E0" android:drawableLeft="@drawable/ic_minus" android:drawablePadding="8dp" android:layout_marginEnd="8dp" />
-        <Button android:id="@+id/btnKitchen" android:layout_width="wrap_content" android:layout_height="40dp" android:text="Kitchen" android:textColor="@color/categoryBathroom" android:backgroundTint="#E0E0E0" android:drawableLeft="@drawable/ic_kitchen" android:drawablePadding="8dp" android:layout_marginEnd="8dp" />
-        <Button android:id="@+id/btnBathroom" android:layout_width="wrap_content" android:layout_height="40dp" android:text="Bathroom" android:textColor="@color/categoryBathroom" android:backgroundTint="#E0E0E0" android:drawableLeft="@drawable/ic_bathroom" android:drawablePadding="8dp" android:layout_marginEnd="8dp" />
-        <Button android:id="@+id/btnBakery" android:layout_width="wrap_content" android:layout_height="40dp" android:text="Bakery" android:textColor="@color/categoryBathroom" android:backgroundTint="#E0E0E0" android:drawableLeft="@drawable/ic_kitchen" android:drawablePadding="8dp" android:layout_marginEnd="8dp" />
-        <Button android:id="@+id/btnBeverages" android:layout_width="wrap_content" android:layout_height="40dp" android:text="Beverages" android:textColor="@color/categoryBathroom" android:backgroundTint="#E0E0E0" android:drawableLeft="@drawable/ic_bathroom" android:drawablePadding="8dp" android:layout_marginEnd="8dp" />
-        <Button android:id="@+id/btnFruits" android:layout_width="wrap_content" android:layout_height="40dp" android:text="Fruits" android:textColor="@color/categoryBathroom" android:backgroundTint="#E0E0E0" android:drawableLeft="@drawable/ic_admin_menu" android:drawablePadding="8dp" android:layout_marginEnd="8dp" />
-        <Button android:id="@+id/btnGrains" android:layout_width="wrap_content" android:layout_height="40dp" android:text="Grains" android:textColor="@color/categoryBathroom" android:backgroundTint="#E0E0E0" android:drawableLeft="@drawable/ic_popular" android:drawablePadding="8dp" android:layout_marginEnd="8dp" />
-        <Button android:id="@+id/btnMeat" android:layout_width="wrap_content" android:layout_height="40dp" android:text="Meat" android:textColor="@color/categoryBathroom" android:backgroundTint="#E0E0E0" android:drawableLeft="@drawable/ic_history" android:drawablePadding="8dp" android:layout_marginEnd="8dp" />
-        <Button android:id="@+id/btnPantry" android:layout_width="wrap_content" android:layout_height="40dp" android:text="Pantry" android:textColor="@color/categoryBathroom" android:backgroundTint="#E0E0E0" android:drawableLeft="@drawable/ic_arrow_back" android:drawablePadding="8dp" android:layout_marginEnd="8dp" />
-        <Button android:id="@+id/btnVegetables" android:layout_width="wrap_content" android:layout_height="40dp" android:text="Vegetables" android:textColor="@color/categoryBathroom" android:backgroundTint="#E0E0E0" android:drawableLeft="@drawable/ic_history" android:drawablePadding="8dp" android:layout_marginEnd="8dp" />
-        <Button android:id="@+id/btnGroceries" android:layout_width="wrap_content" android:layout_height="40dp" android:text="Groceries" android:textColor="@color/categoryBathroom" android:backgroundTint="#E0E0E0" android:drawableLeft="@drawable/ic_groceries" android:drawablePadding="8dp" android:layout_marginEnd="8dp" />
+        <Button android:id="@+id/btnAll" android:layout_width="wrap_content" android:layout_height="40dp" android:text="All" android:textColor="@color/categoryBathroom" android:backgroundTint="#DADBD0" android:drawableLeft="@drawable/ic_all" android:drawablePadding="8dp" android:layout_marginEnd="8dp" />
+        <Button android:id="@+id/btnCleaning" android:layout_width="wrap_content" android:layout_height="40dp" android:text="Cleaning" android:textColor="@color/categoryBathroom" android:backgroundTint="#DADBD0" android:drawableLeft="@drawable/ic_cleaning" android:drawablePadding="8dp" android:layout_marginEnd="8dp" />
+        <Button android:id="@+id/btnKitchen" android:layout_width="wrap_content" android:layout_height="40dp" android:text="Kitchen" android:textColor="@color/categoryBathroom" android:backgroundTint="#DADBD0" android:drawableLeft="@drawable/ic_kitchen" android:drawablePadding="8dp" android:layout_marginEnd="8dp" />
+        <Button android:id="@+id/btnBathroom" android:layout_width="wrap_content" android:layout_height="40dp" android:text="Bathroom" android:textColor="@color/categoryBathroom" android:backgroundTint="#DADBD0" android:drawableLeft="@drawable/ic_bathroom" android:drawablePadding="8dp" android:layout_marginEnd="8dp" />
+        <Button android:id="@+id/btnBakery" android:layout_width="wrap_content" android:layout_height="40dp" android:text="Bakery" android:textColor="@color/categoryBathroom" android:backgroundTint="#DADBD0" android:drawableLeft="@drawable/ic_kitchen" android:drawablePadding="8dp" android:layout_marginEnd="8dp" />
+        <Button android:id="@+id/btnBeverages" android:layout_width="wrap_content" android:layout_height="40dp" android:text="Beverages" android:textColor="@color/categoryBathroom" android:backgroundTint="#DADBD0" android:drawableLeft="@drawable/ic_bathroom" android:drawablePadding="8dp" android:layout_marginEnd="8dp" />
+        <Button android:id="@+id/btnFruits" android:layout_width="wrap_content" android:layout_height="40dp" android:text="Fruits" android:textColor="@color/categoryBathroom" android:backgroundTint="#DADBD0" android:drawableLeft="@drawable/ic_admin_menu" android:drawablePadding="8dp" android:layout_marginEnd="8dp" />
+        <Button android:id="@+id/btnGrains" android:layout_width="wrap_content" android:layout_height="40dp" android:text="Grains" android:textColor="@color/categoryBathroom" android:backgroundTint="#DADBD0" android:drawableLeft="@drawable/ic_popular" android:drawablePadding="8dp" android:layout_marginEnd="8dp" />
+        <Button android:id="@+id/btnMeat" android:layout_width="wrap_content" android:layout_height="40dp" android:text="Meat" android:textColor="@color/categoryBathroom" android:backgroundTint="#DADBD0" android:drawableLeft="@drawable/ic_history" android:drawablePadding="8dp" android:layout_marginEnd="8dp" />
+        <Button android:id="@+id/btnPantry" android:layout_width="wrap_content" android:layout_height="40dp" android:text="Pantry" android:textColor="@color/categoryBathroom" android:backgroundTint="#DADBD0" android:drawableLeft="@drawable/ic_arrow_back" android:drawablePadding="8dp" android:layout_marginEnd="8dp" />
+        <Button android:id="@+id/btnVegetables" android:layout_width="wrap_content" android:layout_height="40dp" android:text="Vegetables" android:textColor="@color/categoryBathroom" android:backgroundTint="#DADBD0" android:drawableLeft="@drawable/ic_history" android:drawablePadding="8dp" android:layout_marginEnd="8dp" />
+        <Button android:id="@+id/btnGroceries" android:layout_width="wrap_content" android:layout_height="40dp" android:text="Groceries" android:textColor="@color/categoryBathroom" android:backgroundTint="#DADBD0" android:drawableLeft="@drawable/ic_groceries" android:drawablePadding="8dp" android:layout_marginEnd="8dp" />
       </LinearLayout>
     </HorizontalScrollView>
 
@@ -118,6 +119,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:padding="4dp"
+        tools:listitem="@layout/item_home"
         android:clipToPadding="false" />
 
     <ProgressBar

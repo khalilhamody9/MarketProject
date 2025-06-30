@@ -4,14 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- 🌄 Background Image -->
-    <ImageView
-        android:id="@+id/backgroundImage"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:src="@drawable/basket2"
-        android:scaleType="centerCrop"
-        android:alpha="0.07" />
 
     <!-- 📜 Scrollable Content -->
     <ScrollView
@@ -30,11 +22,18 @@
                 android:id="@+id/buttonBack"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_arrow_back"
+                android:src="@drawable/ic_back"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:tint="@color/categoryBathroom"
                 android:layout_marginBottom="24dp"
-                android:contentDescription="Back"/>
+                android:contentDescription="Back"
+                />
+            <ImageView
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/group_create_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+            </ImageView>
 
             <!-- Header -->
             <TextView
@@ -49,15 +48,11 @@
 
             <!-- Group Name -->
             <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Group Name"
-                app:boxStrokeColor="@color/primaryColor"
-                app:boxStrokeWidthFocused="2dp"
-                app:boxCornerRadiusTopStart="12dp"
-                app:boxCornerRadiusTopEnd="12dp"
-                app:boxCornerRadiusBottomStart="12dp"
-                app:boxCornerRadiusBottomEnd="12dp"
+
                 android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -71,13 +66,9 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Max Users"
+                android:hint="@string/max_users"
                 app:boxStrokeColor="@color/primaryColor"
-                app:boxStrokeWidthFocused="2dp"
-                app:boxCornerRadiusTopStart="12dp"
-                app:boxCornerRadiusTopEnd="12dp"
-                app:boxCornerRadiusBottomStart="12dp"
-                app:boxCornerRadiusBottomEnd="12dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -91,13 +82,8 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Admin Name"
-                app:boxStrokeColor="@color/primaryColor"
-                app:boxStrokeWidthFocused="2dp"
-                app:boxCornerRadiusTopStart="12dp"
-                app:boxCornerRadiusTopEnd="12dp"
-                app:boxCornerRadiusBottomStart="12dp"
-                app:boxCornerRadiusBottomEnd="12dp"
+                android:hint="@string/admin_name"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_marginBottom="32dp">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -112,7 +98,7 @@
                 android:id="@+id/btnCreateGroup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Create Group"
+                android:text="@string/create_group"
                 android:textStyle="bold"
                 android:backgroundTint="@color/categoryBathroom"
                 android:textColor="@android:color/white"

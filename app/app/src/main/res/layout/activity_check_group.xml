@@ -4,14 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- 🌄 Background Image -->
-    <ImageView
-        android:id="@+id/backgroundImage"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:src="@drawable/basket2"
-        android:scaleType="centerCrop"
-        android:alpha="0.07" />
+
 
     <!-- 📄 Main Content -->
     <LinearLayout
@@ -20,17 +13,23 @@
         android:orientation="vertical"
         android:padding="24dp">
 
+
         <!-- 🔙 Back Button -->
         <ImageButton
             android:id="@+id/buttonBackCheckGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_menu_revert"
+            android:src="@drawable/ic_back"
             android:background="@android:color/transparent"
             android:contentDescription="Back"
             android:layout_gravity="start"
             android:padding="8dp"
             android:layout_marginBottom="16dp" />
+        <ImageView
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/member_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
         <!-- ❓ Prompt Text -->
         <TextView
@@ -49,6 +48,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
             app:cardCornerRadius="12dp"
+            app:cardBackgroundColor="#F5F3F4E9"
+
             app:cardElevation="4dp">
 
             <RadioGroup
@@ -63,12 +64,14 @@
                     android:id="@+id/radioYes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+
                     android:text="Yes"
                     android:textColor="@color/categoryBathroom"
                     android:textSize="16sp"
-                    android:layout_marginEnd="32dp"/>
+                    android:layout_marginEnd="84dp"/>
 
                 <RadioButton
+                    android:layout_marginStart="16dp"
                     android:id="@+id/radioNo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -80,15 +83,11 @@
 
         <!-- 🆔 Group Name Field -->
         <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter Group Name"
-            app:boxStrokeColor="@color/primaryColor"
-            app:boxStrokeWidthFocused="2dp"
-            app:boxCornerRadiusTopStart="12dp"
-            app:boxCornerRadiusTopEnd="12dp"
-            app:boxCornerRadiusBottomStart="12dp"
-            app:boxCornerRadiusBottomEnd="12dp"
+            android:hint="@string/enter_group_name"
+
             android:layout_marginBottom="24dp">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -120,8 +119,8 @@
             android:layout_height="wrap_content"
             android:text="Request to Join"
             android:textStyle="bold"
-            android:backgroundTint="@color/categoryBathroom"
-            android:textColor="@android:color/white"
+            android:backgroundTint="@color/ligh_button_color"
+            android:textColor="@color/categoryBathroom"
             android:drawablePadding="8dp"
             android:padding="12dp"
             android:elevation="4dp"

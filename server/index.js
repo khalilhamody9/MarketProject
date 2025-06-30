@@ -5,14 +5,17 @@ const app = express();
 
 // Middleware
 app.use(cors());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+const { loadDataIfEmpty, loadDataWithBarcode } = require('./controllers/item.controller'); // שנה נתיב אם צריך
 
 // MongoDB Connection
-mongoose.connect('mongodb://localhost:27017/market_db', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
+mongoose.connect('mongodb://localhost:27017/market_db')
+.then(async () => {
+    console.log('MongoDB connected');
+    // כאן קוראים לפונקציה שמטענת את הנתונים
+  //  await loadDataWithBarcode();
 })
-.then(() => console.log('MongoDB connected'))
 .catch((err) => console.error('MongoDB connection error:', err));
 
 // Routes

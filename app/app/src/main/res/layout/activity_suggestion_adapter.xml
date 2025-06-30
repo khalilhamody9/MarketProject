@@ -1,41 +1,71 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    android:background="@drawable/rounded_card_background"
+    android:backgroundTint="@color/card_background"
     android:orientation="vertical"
     android:padding="8dp">
 
-    <TextView
-        android:id="@+id/suggestedItemName"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/itemImageCardView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Item Name"
-        android:textSize="16sp"
-        android:textStyle="bold"/>
+        android:layout_gravity="center"
+        android:layout_margin="8dp"
+        android:background="@drawable/rounded_card_background"
+        android:backgroundTint="@color/md_outline"
+        app:cardCornerRadius="2dp"
+        app:cardElevation="0dp">
+
+        <ImageView
+            android:id="@+id/selectedItemImage"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_gravity="center"
+            android:scaleType="centerCrop" />
+    </androidx.cardview.widget.CardView>
+
 
     <TextView
-        android:id="@+id/suggestedItemInfo"
+        android:id="@+id/selectedItemName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Details"
-        android:textSize="14sp"/>
+        android:layout_alignTop="@+id/itemImageCardView"
+        android:layout_toRightOf="@+id/itemImageCardView"
+        android:text="Item Name"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/selectedItemQuantity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/selectedItemName"
+        android:layout_toRightOf="@+id/itemImageCardView"
+        android:text="Quantity:124"
+        android:textColor="#75796C"
+        android:textSize="14sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:visibility="gone">
 
         <Button
             android:id="@+id/btnApprove"
             android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Approve"
-            android:layout_height="wrap_content"/>
+            android:text="Approve" />
 
         <Button
             android:id="@+id/btnDeny"
             android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Deny"
-            android:layout_height="wrap_content"/>
+            android:text="Deny" />
     </LinearLayout>
-</LinearLayout>
+</RelativeLayout>
