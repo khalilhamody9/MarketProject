@@ -181,6 +181,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         body.put("category", item.getCategory() != null ? item.getCategory() : "Unknown");
         body.put("groupName", groupName);
         body.put("username", username);
+        body.put("barcode", item.getBarcode()); // ✅ הוסף את זה
 
         ApiService apiService = RetrofitClient.getRetrofitInstance().create(ApiService.class);
         Call<Void> call = apiService.addHistory(body);

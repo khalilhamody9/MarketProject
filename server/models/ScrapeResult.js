@@ -9,7 +9,7 @@ const ShopSchema = new mongoose.Schema({
     name: String,
     price: String,
     discount: String,
-    barcode: String
+    barcode: Number
   }]
 }, { _id: false });
 

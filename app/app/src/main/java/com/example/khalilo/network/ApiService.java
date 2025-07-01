@@ -122,8 +122,7 @@ public interface ApiService {
     Call<Map<String, List<Product>>> getShopWithProducts();
     @GET("shop_with_products.json")
     Call<Map<String, Object>> getShopProducts();
-    @GET("/api/last_scrape")
-    Call<Map<String, Object>> getLastScrape(@Query("groupName") String groupName);
+
     @GET("items/recommendations-by-user/{username}")
     Call<RecommendationResponse> getRecommendationsByUser(@Path("username") String username);
     @GET("items/recommendations-smart/{username}")
@@ -152,4 +151,7 @@ public interface ApiService {
 
     @POST("items/decrease-score")
     Call<Void> decreaseRecommendationScore(@Body Map<String, String> body);
+    @GET("scrape/last_scrape")
+    Call<Map<String, Object>> getLastScrape(@Query("groupName") String groupName);
+
 }

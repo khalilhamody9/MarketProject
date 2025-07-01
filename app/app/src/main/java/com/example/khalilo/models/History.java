@@ -12,6 +12,7 @@ public class History {
     private String date;
     private  int quantity;
     private Double score; // או double
+    private long barcode;
 
     public Double getScore() {
         return score;
@@ -87,6 +88,14 @@ public class History {
 
     public String getDate() {
         return date;
+    }
+
+    public long getBarcode() {
+        return barcode;
+    }
+
+    public void setBarcode(long barcode) {
+        this.barcode = barcode;
     }
 
     public void setDate(String date) {

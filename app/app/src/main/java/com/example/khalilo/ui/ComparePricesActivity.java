@@ -127,12 +127,12 @@ public class ComparePricesActivity extends AppCompatActivity {
                         longitude = location.getLongitude();
                         Log.d("LocationCheck", "Lat: " + latitude + ", Lng: " + longitude);
 
-                        List<Map<String, String>> productList = new ArrayList<>();
+                        List<Map<String, Object>> productList = new ArrayList<>();
                         for (Item item : selectedItems.keySet()) {
-                            if (selectedItems.get(item) > 0 && item.getBarcode() != null && !item.getBarcode().isEmpty()) {
-                                Map<String, String> productData = new HashMap<>();
+                            if (selectedItems.get(item) > 0 && item.getBarcode() > 0) {
+                                Map<String, Object> productData = new HashMap<>();
                                 productData.put("name", item.getName().trim());
-                                productData.put("barcode", item.getBarcode().trim());
+                                productData.put("barcode", item.getBarcode()); // אין צורך ב־trim, כי זה מספר
                                 productList.add(productData);
                             }
                         }
@@ -171,7 +171,7 @@ public class ComparePricesActivity extends AppCompatActivity {
     }
 
 
-    private void showCitySelectionDialog(List<Map<String, String>> productList) {
+    private void showCitySelectionDialog(List<Map<String, Object>> productList) {
         String[] cities = {"תל אביב", "ירושלים", "חיפה", "באר שבע", "אשדוד", "אשקלון", "ראשון לציון",
                 "פתח תקווה", "רמת גן", "נתניה", "הרצליה", "כפר סבא", "הוד השרון", "רעננה",
                 "אילת", "טבריה", "נצרת", "עפולה", "נהריה", "קריית שמונה", "מודיעין", "קרית גת"};
@@ -190,7 +190,8 @@ public class ComparePricesActivity extends AppCompatActivity {
                 .show();
     }
 
-    private void sendScrapeRequestWithRetrofit(String city, List<Map<String, String>> products) {
+    private void sendScrapeRequestWithRetrofit(String city, List<Map<String, Object>> products){
+
         if (products == null || products.isEmpty()) {
             Toast.makeText(this, "⚠️ לא נבחרו מוצרים תקפים, נטען את הסריקה האחרונה.", Toast.LENGTH_LONG).show();
             fetchLastScrape();
@@ -249,37 +250,51 @@ public class ComparePricesActivity extends AppCompatActivity {
     private void fetchLastScrape() {
         loadingSpinner.setVisibility(View.VISIBLE);
         ApiService apiService = RetrofitClient.getRetrofitInstance().create(ApiService.class);
+
         apiService.getLastScrape(groupName).enqueue(new Callback<Map<String, Object>>() {
             @Override
             public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
                 loadingSpinner.setVisibility(View.GONE);
                 if (response.isSuccessful() && response.body() != null) {
                     Object shopsObj = response.body().get("shops");
-                    if (shopsObj instanceof Map) {
-                        Map<String, List<Map<String, Object>>> shopsMap = (Map<String, List<Map<String, Object>>>) shopsObj;
+                    if (shopsObj instanceof List) {
+                        List<Map<String, Object>> shopsList = (List<Map<String, Object>>) shopsObj;
                         List<ShopWithProducts> shopList = new ArrayList<>();
 
-                        for (Map.Entry<String, List<Map<String, Object>>> entry : shopsMap.entrySet()) {
-                            String shopName = entry.getKey();
-                            if (!shopName.contains("אונליין") && !shopName.toLowerCase().contains("online")) {
-                                ShopWithProducts shop = new ShopWithProducts();
-                                shop.setShopKey(shopName);
+                        // ✅ רשימת הברקודים שבאמת נבחרו
+                        List<Integer> requestedBarcodes = new ArrayList<>();
+                        for (Item item : selectedItems.keySet()) {
+                            if (selectedItems.get(item) > 0 && item.getBarcode() > 0) {
+                                requestedBarcodes.add((int) item.getBarcode());
+                            }
+                        }
 
-                                List<ShopWithProducts.Product> products = new ArrayList<>();
-                                double total = 0;
-                                for (Map<String, Object> productData : entry.getValue()) {
-                                    String name = (String) productData.get("שם המוצר");
-                                    String priceStr = (String) productData.get("מחיר");
-                                    String sale = (String) productData.get("מבצע");
-                                    double price = 0;
-                                    try {
-                                        price = Double.parseDouble(priceStr.replace("₪", "").trim());
-                                    } catch (Exception ignored) {}
-                                    total += price;
-                                    products.add(new ShopWithProducts.Product(name, priceStr, sale));
+                        for (Map<String, Object> shopMap : shopsList) {
+                            String name = (String) shopMap.get("name");
+                            String address = (String) shopMap.get("address");
+                            double total = ((Number) shopMap.get("total")).doubleValue();
+
+                            List<Map<String, Object>> productsData = (List<Map<String, Object>>) shopMap.get("products");
+                            List<ShopWithProducts.Product> products = new ArrayList<>();
+
+                            for (Map<String, Object> productData : productsData) {
+                                Object barcodeObj = productData.get("barcode");
+                                if (barcodeObj instanceof Number) {
+                                    int barcode = ((Number) barcodeObj).intValue();
+                                    if (!requestedBarcodes.contains(barcode)) continue; // ❌ דלג אם לא ברשימת המוצרים הנבחרים
                                 }
+
+                                String pname = (String) productData.get("name");
+                                String priceStr = (String) productData.get("price");
+                                String discount = (String) productData.get("discount");
+                                products.add(new ShopWithProducts.Product(pname, priceStr, discount));
+                            }
+
+                            if (!products.isEmpty()) {
+                                ShopWithProducts shop = new ShopWithProducts();
+                                shop.setShopKey(name + " - " + address);
+                                shop.setTotalPrice(total); // שים לב שזה עדיין סוכם לפי כל המוצרים המקוריים
                                 shop.setProducts(products);
-                                shop.setTotalPrice(total);
                                 shopList.add(shop);
                             }
                         }
@@ -293,6 +308,8 @@ public class ComparePricesActivity extends AppCompatActivity {
                         } else {
                             showShopResults(shopList);
                         }
+                    } else {
+                        Toast.makeText(ComparePricesActivity.this, "שגיאה: פורמט תוצאות לא צפוי", Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     Toast.makeText(ComparePricesActivity.this, "שגיאה בנתונים מהשרת", Toast.LENGTH_SHORT).show();
@@ -306,6 +323,8 @@ public class ComparePricesActivity extends AppCompatActivity {
             }
         });
     }
+
+
 
     private void fetchFavoriteStores(String groupName, List<ShopWithProducts> fullList) {
         ApiService apiService = RetrofitClient.getRetrofitInstance().create(ApiService.class);

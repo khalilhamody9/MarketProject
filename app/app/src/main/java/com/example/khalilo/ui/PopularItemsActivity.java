@@ -62,7 +62,8 @@ public class PopularItemsActivity extends AppCompatActivity {
                     HashMap<Item, Integer> popularMap = new HashMap<>();
                     for (History history : response.body()) {
                         String imageUrl = history.getImageUrl();  // שדה חדש שמגיע מהשרת
-                        Item item = new Item(history.getItemName(), imageUrl, history.getCategory(), "");
+                        long barcode = history.getBarcode(); // ודא שזה קיים באובייקט History
+                        Item item = new Item(history.getItemName(), imageUrl, history.getCategory(), barcode);
                         popularMap.put(item, history.getQuantity());
                     }
 

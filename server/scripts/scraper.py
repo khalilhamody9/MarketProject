@@ -109,7 +109,9 @@ def run_scraper(city, products, user_location, group_name):
         shop_to_products[shop_key].append({
             "שם המוצר": entry["שם"],
             "מחיר": entry["מחיר"],
-            "מבצע": entry["מבצע"]
+            "מבצע": entry["מבצע"],
+            "barcode": int(entry["ברקוד"]) if entry["ברקוד"].isdigit() else entry["ברקוד"]
+
         })
 
     # Save to MongoDB
@@ -117,23 +119,22 @@ def run_scraper(city, products, user_location, group_name):
     db = client["market_db"]
     collection = db["scraping_results"]
 
-    collection.insert_one({
-        "groupName": group_name,
-        "city": city,
-        "location": {
-            "latitude": user_location[0],
-            "longitude": user_location[1]
-        },
-        "shops": dict(shop_to_products),
-        "timestamp": time.time()
-    })
+    # collection.insert_one({
+    #     "groupName": group_name,
+    #     "city": city,
+    #     "location": {
+    #         "latitude": user_location[0],
+    #         "longitude": user_location[1]
+    #     },
+    #     "shops": dict(shop_to_products),
+    #     "timestamp": time.time()
+    # })
 
     print(json.dumps({
         "message": "Success",
         "total_shops": len(shop_to_products),
-        "shops": list(shop_to_products.keys())
+        "shops": shop_to_products  # ✅ שלח את המוצרים עצמם, לא רק שמות
     }, ensure_ascii=False), flush=True)
-
 if __name__ == "__main__":
     try:
         city = sys.argv[1]

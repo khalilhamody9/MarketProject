@@ -16,10 +16,12 @@ public class Item implements Serializable {
     private String category;
     private boolean isBought;
     private String actionUser;
-    private String barcode;
+    private long barcode;
+
+
     private static final long serialVersionUID = 1L;
 
-    public Item(String name, String img, String category, String barcode) {
+    public Item(String name, String img, String category, long barcode) {
         this.name = name;
         this.img = img;
         this.category = category;
@@ -50,9 +52,13 @@ public class Item implements Serializable {
 
     public void setActionUser(String actionUser) { this.actionUser = actionUser; }
 
-    public String getBarcode() { return barcode; }
+    public long getBarcode() {
+        return barcode;
+    }
 
-    public void setBarcode(String barcode) { this.barcode = barcode; }
+    public void setBarcode(long barcode) {
+        this.barcode = barcode;
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
