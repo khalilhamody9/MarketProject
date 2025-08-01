@@ -2,7 +2,7 @@
 
 This is a full-stack shopping assistant app that helps users manage shopping lists, compare prices, and get intelligent product recommendations. The system consists of two main parts:
 
-- **`app/`** – The Android application (built with Java/Kotlin)
+- **`app/`** – The Android application (built with Java)
 - **`server/`** – The backend server (built with Node.js and integrated Python scripts using Anaconda and Scikit-learn)
 
 ---
